@@ -6,3 +6,7 @@
 **/*/override.tf.json
 **/*/terraform.rc
 **/*/.terraformrc
+
+## secret files
+*.pem
+**/*/id_*
