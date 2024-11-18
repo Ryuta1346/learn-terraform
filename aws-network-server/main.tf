@@ -25,9 +25,9 @@ resource "aws_vpc" "VPC" {
 // 公開用サブネット
 // [Resource: aws_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet)
 resource "aws_subnet" "public1" {
-  vpc_id                  = aws_vpc.VPC.id
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = true // サブネットに起動したインスタンスにパブリックIPアドレスを割り当てる場合はtrueを指定する。 デフォルトはfalse
+  vpc_id     = aws_vpc.VPC.id
+  cidr_block = "10.0.1.0/24"
+  # map_public_ip_on_launch = true // サブネットに起動したインスタンスにパブリックIPアドレスを割り当てる場合はtrueを指定する。 デフォルトはfalse
   tags = {
     Name = "aws-network-server-subnet-public1"
   }
@@ -159,9 +159,9 @@ resource "aws_vpc_security_group_ingress_rule" "web-sg-ssh" {
  */
 resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
   security_group_id = aws_security_group.web-sg.id
-  from_port         = 0           // すべてのポート（0から65535まで）を許可。
-  to_port           = 0           // すべてのポート（0から65535まで）を許可。
-  ip_protocol       = "-1"        # すべてのプロトコル
-  cidr_ipv4         = "0.0.0.0/0" # すべての宛先に送信を許可
+  from_port         = -1          // すべてのポート（0から65535まで）を許可。
+  to_port           = -1          // すべてのポート（0から65535まで）を許可。
+  ip_protocol       = "-1"        // すべてのプロトコル
+  cidr_ipv4         = "0.0.0.0/0" // すべての宛先に送信を許可
   description       = "Allow all outbound traffic"
 }
