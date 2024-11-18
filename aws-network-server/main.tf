@@ -25,8 +25,9 @@ resource "aws_vpc" "VPC" {
 // 公開用サブネット
 // [Resource: aws_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet)
 resource "aws_subnet" "public1" {
-  vpc_id     = aws_vpc.VPC.id
-  cidr_block = "10.0.1.0/24"
+  vpc_id                  = aws_vpc.VPC.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true // サブネットに起動したインスタンスにパブリックIPアドレスを割り当てる場合はtrueを指定する。 デフォルトはfalse
   tags = {
     Name = "aws-network-server-subnet-public1"
   }
@@ -60,8 +61,9 @@ resource "aws_route_table_association" "public-subnet-association" {
   route_table_id = aws_route_table.public-route-table.id
 }
 
+// AMIの一覧取得: aws ssm get-parameters-by-path --path /aws/service/ami-amazon-linux-latest --query 'Parameters[].Name'
 data "aws_ssm_parameter" "amazonlinux_2023" {
-  name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2" // Amazon Linux 2023の最新のAMI IDを取得
+  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64" // Amazon Linux 2023の最新のAMI IDを取得
 }
 
 
@@ -78,9 +80,11 @@ data "aws_ssm_parameter" "amazonlinux_2023" {
 resource "aws_instance" "web-server" {
   ami                         = data.aws_ssm_parameter.amazonlinux_2023.value
   instance_type               = "t2.micro"
-  private_ip                  = "10.0.1.10"           // 指定しない場合、パブリックサブネットに割り当てた「10.0.1.0~10.0.1.255」の範囲内でインスタンス起動時に自動で割り当てられる。今回は手動で指定
-  subnet_id                   = aws_subnet.public1.id // 外部公開用サブネットにインスタンスを配置
-  associate_public_ip_address = true                  // 外部からのアクセス用にパブリックIPを自動で割り当てる
+  private_ip                  = "10.0.1.10"                          // 指定しない場合、パブリックサブネットに割り当てた「10.0.1.0~10.0.1.255」の範囲内でインスタンス起動時に自動で割り当てられる。今回は手動で指定
+  subnet_id                   = aws_subnet.public1.id                // 外部公開用サブネットにインスタンスを配置
+  associate_public_ip_address = true                                 // 外部からのアクセス用にパブリックIPを自動で割り当てる
+  vpc_security_group_ids      = [aws_security_group.web-sg.id]       // EC2インスタンスに適用するセキュリティグループを指定
+  key_name                    = aws_key_pair.web-server-key.key_name // EC2インスタンスに適用するキーペアを指定.SSH接続を行うために必要
   tags = {
     Name = "aws-network-server-web-server"
   }
@@ -128,8 +132,9 @@ resource "aws_key_pair" "web-server-key" {
 
 // [Resource: aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)
 resource "aws_security_group" "web-sg" {
-  name   = "web-sg"
-  vpc_id = aws_vpc.VPC.id // セキュリティグループを作成する対象のVPCを指定
+  name        = "web-sg"
+  description = "Maneged by Terraform!"
+  vpc_id      = aws_vpc.VPC.id // セキュリティグループを作成する対象のVPCを指定
   tags = {
     Name = "aws-network-server-web-sg"
   }
@@ -142,6 +147,21 @@ resource "aws_vpc_security_group_ingress_rule" "web-sg-ssh" {
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
-  cidr_ipv4         = "72.14.201.177/32" // SSH接続を許可するIPアドレスを指定.全てのIPアドレスを許可する場合は"0.0.0.0/0"を指定
+  cidr_ipv4         = "125.205.33.111/32" // SSH接続を許可するIPアドレスを指定.全てのIPアドレスを許可する場合は"0.0.0.0/0"を指定
   description       = "Allow SSH from my IP"
+}
+// dnfコマンドを使用して、外部からhttpsなどWebサーバーソフトウェアをインストールする場合等に必要
+
+/**
+ * ec2インスタンスから外部への通信を許可するためのセキュリティグループルールを設定する。resourceにはaws_security_group_ruleを使用しないこと
+ * セキュリティグループは、デフォルトですべてのアウトバウンド通信を許可することもあり、書籍上では設定する記述はなかったが、
+ * `aws_vpc_security_group_ingress(egress)_rule`を使って個別にルールを設定すると、セキュリティグループのデフォルトルールが無効化されるため、追加設定が必要
+ */
+resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
+  security_group_id = aws_security_group.web-sg.id
+  from_port         = 0           // すべてのポート（0から65535まで）を許可。
+  to_port           = 0           // すべてのポート（0から65535まで）を許可。
+  ip_protocol       = "-1"        # すべてのプロトコル
+  cidr_ipv4         = "0.0.0.0/0" # すべての宛先に送信を許可
+  description       = "Allow all outbound traffic"
 }
