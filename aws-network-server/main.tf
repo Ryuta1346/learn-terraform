@@ -27,7 +27,7 @@ resource "aws_vpc" "VPC" {
 resource "aws_subnet" "public1" {
   vpc_id     = aws_vpc.VPC.id
   cidr_block = "10.0.1.0/24"
-  # map_public_ip_on_launch = true // サブネットに起動したインスタンスにパブリックIPアドレスを割り当てる場合はtrueを指定する。 デフォルトはfalse
+  # map_public_ip_on_launch = true // サブネットに起動したインスタンスにパブリックIPアドレスを割り当てる場合はtrueを指定する。デフォルトはfalse。インスタンスの設定で associate_public_ip_address = true を指定すると、この設定を上書き
   tags = {
     Name = "aws-network-server-subnet-public1"
   }
