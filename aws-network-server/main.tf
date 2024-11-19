@@ -77,6 +77,7 @@ data "aws_ssm_parameter" "amazonlinux_2023" {
 #   }
 # }
 
+// [Resource: aws_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance)
 resource "aws_instance" "web-server" {
   ami                         = data.aws_ssm_parameter.amazonlinux_2023.value
   instance_type               = "t2.micro"
@@ -85,6 +86,14 @@ resource "aws_instance" "web-server" {
   associate_public_ip_address = true                                 // 外部からのアクセス用にパブリックIPを自動で割り当てる
   vpc_security_group_ids      = [aws_security_group.web-sg.id]       // EC2インスタンスに適用するセキュリティグループを指定
   key_name                    = aws_key_pair.web-server-key.key_name // EC2インスタンスに適用するキーペアを指定.SSH接続を行うために必要
+  // 以下のユーザーデータを実行することで、インスタンス起動時にApacheをインストールし、起動する
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo dnf update -y
+              sudo dnf install -y httpd
+              sudo systemctl start httpd.service
+              sudo systemctl enable httpd.service
+              EOF
   tags = {
     Name = "aws-network-server-web-server"
   }
@@ -150,12 +159,24 @@ resource "aws_vpc_security_group_ingress_rule" "web-sg-ssh" {
   cidr_ipv4         = "125.205.33.111/32" // SSH接続を許可するIPアドレスを指定.全てのIPアドレスを許可する場合は"0.0.0.0/0"を指定
   description       = "Allow SSH from my IP"
 }
-// dnfコマンドを使用して、外部からhttpsなどWebサーバーソフトウェアをインストールする場合等に必要
+
+// ec2インスタンスにhttp接続を許可するためのセキュリティグループルールを設定する。resourceにはaws_security_group_ruleを使用しないこと
+resource "aws_vpc_security_group_ingress_rule" "http" {
+  security_group_id = aws_security_group.web-sg.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0" // すべてのIPアドレスからのアクセスを許可
+  description       = "Allow HTTP from all"
+}
 
 /**
  * ec2インスタンスから外部への通信を許可するためのセキュリティグループルールを設定する。resourceにはaws_security_group_ruleを使用しないこと
  * セキュリティグループは、デフォルトですべてのアウトバウンド通信を許可することもあり、書籍上では設定する記述はなかったが、
  * `aws_vpc_security_group_ingress(egress)_rule`を使って個別にルールを設定すると、セキュリティグループのデフォルトルールが無効化されるため、追加設定が必要
+ * この設定を付与することで、dnfコマンドを使用して、外部からhttpsなどWebサーバーソフトウェアをインストールすることができる
+ *
+ * [Resource: aws_vpc_security_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule)
  */
 resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
   security_group_id = aws_security_group.web-sg.id
