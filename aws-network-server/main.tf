@@ -17,6 +17,7 @@ provider "aws" {
 // [Resource: aws_vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc)
 resource "aws_vpc" "VPC" {
   cidr_block = "10.0.0.0/16" // CIDR表記で、今回はネットワークのビット長を16ビットに設定
+  enable_dns_hostnames = true
   tags = {
     Name = "aws-network-server-VPC"
   }
