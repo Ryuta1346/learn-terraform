@@ -16,7 +16,7 @@ provider "aws" {
 
 // [Resource: aws_vpc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc)
 resource "aws_vpc" "VPC" {
-  cidr_block = "10.0.0.0/16" // CIDR表記で、今回はネットワークのビット長を16ビットに設定
+  cidr_block           = "10.0.0.0/16" // CIDR表記で、今回はネットワークのビット長を16ビットに設定
   enable_dns_hostnames = true
   tags = {
     Name = "aws-network-server-VPC"
@@ -31,6 +31,16 @@ resource "aws_subnet" "public1" {
   # map_public_ip_on_launch = true // サブネットに起動したインスタンスにパブリックIPアドレスを割り当てる場合はtrueを指定する。デフォルトはfalse。インスタンスの設定で associate_public_ip_address = true を指定すると、この設定を上書き
   tags = {
     Name = "aws-network-server-subnet-public1"
+  }
+}
+
+// 非公開用サブネット
+// [Resource: aws_subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet)
+resource "aws_subnet" "private1" {
+  vpc_id     = aws_vpc.VPC.id
+  cidr_block = "10.0.2.0/24"
+  tags = {
+    Name = "aws-network-server-subnet-private1"
   }
 }
 
@@ -78,6 +88,7 @@ data "aws_ssm_parameter" "amazonlinux_2023" {
 #   }
 # }
 
+// 公開用サブネットにEC2インスタンスを作成する
 // [Resource: aws_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance)
 resource "aws_instance" "web-server" {
   ami                         = data.aws_ssm_parameter.amazonlinux_2023.value
@@ -118,6 +129,47 @@ resource "aws_volume_attachment" "web-server-attachment" {
   volume_id   = aws_ebs_volume.web-server-volume.id
 }
 
+// 非公開用サブネットにEC2インスタンスを作成する
+resource "aws_instance" "db-server" {
+  ami                         = data.aws_ssm_parameter.amazonlinux_2023.value
+  instance_type               = "t2.micro"
+  subnet_id                   = aws_subnet.private1.id
+  associate_public_ip_address = false
+  private_ip                  = "10.0.2.10"
+  vpc_security_group_ids      = [aws_security_group.db-sg.id]
+  key_name                    = aws_key_pair.web-server-key.key_name
+
+  tags = {
+    Name = "aws-network-server-db-server"
+  }
+}
+
+resource "aws_ebs_volume" "db-server-volume" {
+  availability_zone = aws_instance.db-server.availability_zone
+  size              = 8
+  type              = "gp2"
+  tags = {
+    Name = "aws-network-server-db-server-volume"
+  }
+}
+
+resource "aws_volume_attachment" "db-server-attachment" {
+  device_name = "/dev/sdh"
+  instance_id = aws_instance.db-server.id
+  volume_id   = aws_ebs_volume.db-server-volume.id
+}
+
+resource "aws_security_group" "db-sg" {
+  name        = "db-sg"
+  description = "Managed by Terraform!"
+  vpc_id      = aws_vpc.VPC.id
+  tags = {
+    Name = "aws-network-server-db-sg"
+  }
+}
+
+
+
 // このリソースで生成された秘密鍵は、Terraformのステートファイルに暗号化されずに保存される。
 // 今回の実装では本運用しない設定のため、`tls-private_key`を使用しているが、本運用の際にはセキュアな方法で秘密鍵を管理する
 // [tls_private_key (Resource)](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key)
@@ -143,11 +195,30 @@ resource "aws_key_pair" "web-server-key" {
 // [Resource: aws_security_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group)
 resource "aws_security_group" "web-sg" {
   name        = "web-sg"
-  description = "Maneged by Terraform!"
+  description = "Managed by Terraform!"
   vpc_id      = aws_vpc.VPC.id // セキュリティグループを作成する対象のVPCを指定
   tags = {
     Name = "aws-network-server-web-sg"
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "db-sg-ssh" {
+  security_group_id = aws_security_group.db-sg.id
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "125.205.33.111/32"
+  description       = "Allow SSH from my IP"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
+  security_group_id = aws_security_group.db-sg.id
+  from_port         = 3306
+  to_port           = 3306
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+  description       = "Allow MySQL from all"
+
 }
 
 // ec2インスタンスにssh接続を許可するためのセキュリティグループルールを設定する。resourceにはaws_security_group_ruleを使用しないこと
