@@ -253,8 +253,8 @@ resource "aws_vpc_security_group_ingress_rule" "db-sg-ssh" {
 
 resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
   security_group_id = aws_security_group.db-sg.id
-  from_port         = 3306
-  to_port           = 3306
+  from_port         = 3306 // MariaDBのデフォルトポート
+  to_port           = 3306 // MariaDBのデフォルトポート
   ip_protocol       = "tcp"
   cidr_ipv4         = "0.0.0.0/0"
   description       = "Allow MySQL from all"
