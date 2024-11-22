@@ -159,14 +159,7 @@ resource "aws_volume_attachment" "db-server-attachment" {
   volume_id   = aws_ebs_volume.db-server-volume.id
 }
 
-resource "aws_security_group" "db-sg" {
-  name        = "db-sg"
-  description = "Managed by Terraform!"
-  vpc_id      = aws_vpc.VPC.id
-  tags = {
-    Name = "aws-network-server-db-sg"
-  }
-}
+
 
 
 
@@ -200,25 +193,6 @@ resource "aws_security_group" "web-sg" {
   tags = {
     Name = "aws-network-server-web-sg"
   }
-}
-
-resource "aws_vpc_security_group_ingress_rule" "db-sg-ssh" {
-  security_group_id = aws_security_group.db-sg.id
-  from_port         = 22
-  to_port           = 22
-  ip_protocol       = "tcp"
-  cidr_ipv4         = "125.205.33.111/32"
-  description       = "Allow SSH from my IP"
-}
-
-resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
-  security_group_id = aws_security_group.db-sg.id
-  from_port         = 3306
-  to_port           = 3306
-  ip_protocol       = "tcp"
-  cidr_ipv4         = "0.0.0.0/0"
-  description       = "Allow MySQL from all"
-
 }
 
 // ec2インスタンスにssh接続を許可するためのセキュリティグループルールを設定する。resourceにはaws_security_group_ruleを使用しないこと
@@ -258,3 +232,40 @@ resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
   cidr_ipv4         = "0.0.0.0/0" // すべての宛先に送信を許可
   description       = "Allow all outbound traffic"
 }
+
+resource "aws_security_group" "db-sg" {
+  name        = "db-sg"
+  description = "Managed by Terraform!"
+  vpc_id      = aws_vpc.VPC.id
+  tags = {
+    Name = "aws-network-server-db-sg"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "db-sg-ssh" {
+  security_group_id = aws_security_group.db-sg.id
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "125.205.33.111/32"
+  description       = "Allow SSH from my IP"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
+  security_group_id = aws_security_group.db-sg.id
+  from_port         = 3306
+  to_port           = 3306
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+  description       = "Allow MySQL from all"
+}
+
+resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
+  security_group_id = aws_security_group.db-sg.id
+  from_port         = -1          // すべてのポート（0から65535まで）を許可。
+  to_port           = -1          // すべてのポート（0から65535まで）を許可。
+  ip_protocol       = "-1"        // すべてのプロトコル
+  cidr_ipv4         = "0.0.0.0/0" // すべての宛先に送信を許可
+  description       = "Allow all outbound traffic"
+}
+
