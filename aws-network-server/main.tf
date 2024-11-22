@@ -224,7 +224,7 @@ resource "aws_vpc_security_group_ingress_rule" "http" {
  *
  * [Resource: aws_vpc_security_group_egress_rule](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_egress_rule)
  */
-resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
+resource "aws_vpc_security_group_egress_rule" "web-all_traffic_rule" {
   security_group_id = aws_security_group.web-sg.id
   from_port         = -1          // すべてのポート（0から65535まで）を許可。
   to_port           = -1          // すべてのポート（0から65535まで）を許可。
@@ -260,7 +260,7 @@ resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
   description       = "Allow MySQL from all"
 }
 
-resource "aws_vpc_security_group_egress_rule" "all_traffic_rule" {
+resource "aws_vpc_security_group_egress_rule" "db-all-traffic-rule" {
   security_group_id = aws_security_group.db-sg.id
   from_port         = -1          // すべてのポート（0から65535まで）を許可。
   to_port           = -1          // すべてのポート（0から65535まで）を許可。
