@@ -169,9 +169,6 @@ resource "aws_volume_attachment" "db-server-attachment" {
 }
 
 
-
-
-
 // このリソースで生成された秘密鍵は、Terraformのステートファイルに暗号化されずに保存される。
 // 今回の実装では本運用しない設定のため、`tls-private_key`を使用しているが、本運用の際にはセキュアな方法で秘密鍵を管理する
 // [tls_private_key (Resource)](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key)
