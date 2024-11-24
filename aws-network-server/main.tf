@@ -72,21 +72,30 @@ resource "aws_route_table_association" "public-subnet-association" {
   route_table_id = aws_route_table.public-route-table.id
 }
 
+// 非公開サブネットのデフォルトゲートをNAT Gatewayに設定する
+resource "aws_route_table" "private-route-table" {
+  vpc_id = aws_vpc.VPC.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.network-server-nat-gateway.id
+  }
+  tags = {
+    Name = "aws-network-server-private-route-table"
+  }
+}
+
+// 非公開サブネットとルートテーブルの関連付け
+resource "aws_route_table_association" "private-subnet-association" {
+  subnet_id      = aws_subnet.private1.id
+  route_table_id = aws_route_table.private-route-table.id
+}
+
 // AMIの一覧取得: aws ssm get-parameters-by-path --path /aws/service/ami-amazon-linux-latest --query 'Parameters[].Name'
 data "aws_ssm_parameter" "amazonlinux_2023" {
   name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64" // Amazon Linux 2023の最新のAMI IDを取得
 }
 
-
-// 任意のAMIを指定する場合は以下のように記述する
-# data "aws_ami" "amazon-linux-2023" {
-#   most_recent = true
-#   owners      = ["amazon"]
-#   filter {
-#     name   = "name"
-#     values = ["al2023-ami-*-kernel-6.1-x86_64"]
-#   }
-# }
 
 // 公開用サブネットにEC2インスタンスを作成する
 // [Resource: aws_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance)
@@ -216,6 +225,15 @@ resource "aws_vpc_security_group_ingress_rule" "http" {
   description       = "Allow HTTP from all"
 }
 
+resource "aws_vpc_security_group_ingress_rule" "web-sg-icmp" {
+  security_group_id = aws_security_group.web-sg.id
+  from_port         = 8
+  to_port           = 0
+  ip_protocol       = "icmp"
+  cidr_ipv4         = "0.0.0.0/0"
+  description       = "Allow ICMP from all"
+}
+
 /**
  * ec2インスタンスから外部への通信を許可するためのセキュリティグループルールを設定する。resourceにはaws_security_group_ruleを使用しないこと
  * セキュリティグループは、デフォルトですべてのアウトバウンド通信を許可することもあり、書籍上では設定する記述はなかったが、
@@ -247,8 +265,8 @@ resource "aws_vpc_security_group_ingress_rule" "db-sg-ssh" {
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
-  cidr_ipv4         = "125.205.33.111/32"
-  description       = "Allow SSH from my IP"
+  cidr_ipv4         = "10.0.1.10/32" // SSH接続を許可するIPアドレスはWebサーバーのみ
+  description       = "Allow SSH from web server"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
@@ -260,6 +278,15 @@ resource "aws_vpc_security_group_ingress_rule" "db-sg-mariadb" {
   description       = "Allow MySQL from all"
 }
 
+resource "aws_vpc_security_group_ingress_rule" "db-sg-icmp" {
+  security_group_id = aws_security_group.db-sg.id
+  from_port         = 8
+  to_port           = 0
+  ip_protocol       = "icmp"
+  cidr_ipv4         = "0.0.0.0/0"
+  description       = "Allow ICMP from all"
+}
+
 resource "aws_vpc_security_group_egress_rule" "db-all-traffic-rule" {
   security_group_id = aws_security_group.db-sg.id
   from_port         = -1          // すべてのポート（0から65535まで）を許可。
@@ -269,3 +296,16 @@ resource "aws_vpc_security_group_egress_rule" "db-all-traffic-rule" {
   description       = "Allow all outbound traffic"
 }
 
+
+
+// Private SubnetがインターネットにアクセスできるようにするためのNAT Gatewayを作成する
+// [Resource: aws_nat_gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/nat_gateway)
+resource "aws_nat_gateway" "network-server-nat-gateway" {
+  subnet_id     = aws_subnet.public1.id
+  allocation_id = aws_eip.network-server-eip.id
+}
+
+// [Resource: aws_eip](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/eip)
+resource "aws_eip" "network-server-eip" {
+  vpc = true
+}
