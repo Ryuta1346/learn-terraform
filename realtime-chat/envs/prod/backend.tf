@@ -6,21 +6,19 @@ terraform {
     }
   }
 
-  required_version = ">= 1.2.0"
-
   backend "s3" {
     bucket  = "realtime-chat-terraform-state"
-    key     = "realtime-chat/terraform.tfstate"
+    key     = "prod/terraform.tfstate"
     region  = "us-east-1"
     encrypt = true
   }
+
+  required_version = ">= 1.2.0"
 }
 
 
 provider "aws" {
   region = "us-east-1"
 }
-
-
 
 
