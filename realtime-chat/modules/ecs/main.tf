@@ -1,6 +1,6 @@
 ## サービス・タスク定義の管理はecspressoで行うため、ここではクラスターのみ定義
 resource "aws_ecs_cluster" "chat" {
-  name = "chat"
+  name = var.ecs_cluster_name
   setting {
     name  = "containerInsights"
     value = "enabled"
@@ -8,17 +8,17 @@ resource "aws_ecs_cluster" "chat" {
 
   tags = {
     Environment = var.environment
-    Project     = "realtime-chat"
+    Project     = var.project_name
   }
 }
 
 resource "aws_ecs_cluster_capacity_providers" "chat" {
   cluster_name       = aws_ecs_cluster.chat.name
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+  capacity_providers = var.capacity_providers
 
   default_capacity_provider_strategy {
-    base              = 1
-    weight            = 2
-    capacity_provider = "FARGATE"
+    base              = var.default_base_count
+    weight            = var.default_weight_count
+    capacity_provider = var.capacity_providers[0]
   }
 }

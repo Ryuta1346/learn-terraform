@@ -1,11 +1,11 @@
 resource "aws_security_group" "alb_sg" {
-  name        = "visitor-chat-alb-sg"
-  description = "Managed for Chat"
+  name        = "${var.security_group_name}-sg"
+  description = "Security group for the ${var.security_group_name}"
   vpc_id      = var.vpc_id
 
   tags = {
     Environment = var.environment
-    Project     = "realtime-chat"
+    Project     = var.project_name
   }
 }
 

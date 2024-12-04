@@ -15,3 +15,15 @@ variable "environment" {
   type        = string
   sensitive   = false
 }
+
+variable "public_subnet_count" {
+  description = "The number of public subnets for the VPC"
+  type        = number
+  sensitive   = false
+}
+
+variable "private_subnet_count" {
+  description = "The number of private subnets for the VPC"
+  type        = number
+  sensitive   = false
+}
