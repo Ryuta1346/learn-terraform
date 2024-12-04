@@ -1,9 +1,9 @@
-resource "aws_lb" "visitor_chat" {
+resource "aws_lb" "chat" {
   name                       = "visitor-chat"
   internal                   = false
   load_balancer_type         = "application"
-  security_groups            = [var.visitor_chat_alb_sg_id]
-  subnets                    = [var.visitor_chat_public_subnet_id]
+  security_groups            = [var.alb_sg_id]
+  subnets                    = [var.public_subnet_id]
   enable_deletion_protection = true
 
   access_logs {

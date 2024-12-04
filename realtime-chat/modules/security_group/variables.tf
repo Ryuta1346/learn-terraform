@@ -1,5 +1,5 @@
-variable "visitor_chat_vpc_id" {
-  description = "The ID of the Visitor's Chat VPC"
+variable "vpc_id" {
+  description = "The ID of the Chat VPC"
   type        = string
   sensitive   = false
 }

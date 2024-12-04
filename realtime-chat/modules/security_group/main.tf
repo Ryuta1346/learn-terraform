@@ -1,7 +1,7 @@
-resource "aws_security_group" "visitor_chat_alb_sg" {
+resource "aws_security_group" "alb_sg" {
   name        = "visitor-chat-alb-sg"
-  description = "Managed for Visitor's Chat"
-  vpc_id      = var.visitor_chat_vpc_id
+  description = "Managed for Chat"
+  vpc_id      = var.vpc_id
 
   tags = {
     Environment = var.environment
@@ -10,7 +10,7 @@ resource "aws_security_group" "visitor_chat_alb_sg" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "https_inbound" {
-  security_group_id = aws_security_group.visitor_chat_alb_sg.id
+  security_group_id = aws_security_group.alb_sg.id
   from_port         = 443
   to_port           = 443
   ip_protocol       = "tcp"
@@ -19,7 +19,7 @@ resource "aws_vpc_security_group_ingress_rule" "https_inbound" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "http_inbound" {
-  security_group_id = aws_security_group.visitor_chat_alb_sg.id
+  security_group_id = aws_security_group.alb_sg.id
   from_port         = 80
   to_port           = 80
   ip_protocol       = "tcp"
@@ -28,7 +28,7 @@ resource "aws_vpc_security_group_ingress_rule" "http_inbound" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "all_traffic" {
-  security_group_id = aws_security_group.visitor_chat_alb_sg.id
+  security_group_id = aws_security_group.alb_sg.id
   from_port         = -1
   to_port           = -1
   ip_protocol       = "-1"
