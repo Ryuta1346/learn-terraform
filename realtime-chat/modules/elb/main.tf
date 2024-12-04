@@ -12,4 +12,9 @@ resource "aws_lb" "visitor_chat" {
     enabled = true
   }
 
+  tags = {
+    Environment = var.environment
+    Project     = "realtime-chat"
+  }
+
 }

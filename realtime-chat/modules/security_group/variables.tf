@@ -3,3 +3,9 @@ variable "visitor_chat_vpc_id" {
   type        = string
   sensitive   = false
 }
+
+variable "environment" {
+  description = "The environment for the Visitor's Chat service"
+  type        = string
+  sensitive   = false
+}

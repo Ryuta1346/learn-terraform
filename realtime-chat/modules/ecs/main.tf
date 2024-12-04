@@ -5,6 +5,11 @@ resource "aws_ecs_cluster" "visitor_chat" {
     name  = "containerInsights"
     value = "enabled"
   }
+
+  tags = {
+    Environment = var.environment
+    Project     = "realtime-chat"
+  }
 }
 
 resource "aws_ecs_cluster_capacity_providers" "visitor_chat" {

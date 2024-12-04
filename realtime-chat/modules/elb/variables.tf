@@ -15,3 +15,9 @@ variable "visitor_chat_public_subnet_id" {
   type        = string
   sensitive   = false
 }
+
+variable "environment" {
+  description = "The environment for the Visitor's Chat service"
+  type        = string
+  sensitive   = false
+}

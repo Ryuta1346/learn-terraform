@@ -9,3 +9,9 @@ variable "availability_zones" {
   type        = list(string)
   sensitive   = false
 }
+
+variable "environment" {
+  description = "The environment for the VPC"
+  type        = string
+  sensitive   = false
+}

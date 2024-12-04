@@ -4,8 +4,8 @@ resource "aws_security_group" "visitor_chat_alb_sg" {
   vpc_id      = var.visitor_chat_vpc_id
 
   tags = {
-    Name    = "visitor-chat-sg"
-    Project = "realtime-chat"
+    Environment = var.environment
+    Project     = "realtime-chat"
   }
 }
 
