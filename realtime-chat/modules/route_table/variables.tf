@@ -4,23 +4,13 @@ variable "vpc_id" {
   sensitive   = false
 }
 
-variable "internet_gateway_id" {
-  description = "The ID of the internet gateway"
-  type        = string
-  sensitive   = false
-}
-
-variable "subnet_id" {
-  description = "The ID of the subnet"
-  type        = string
-  sensitive   = false
-}
-
-variable "route_table_cidr_block" {
-  description = "The CIDR block for the public route table"
-  type        = string
-  sensitive   = false
-  default     = "0.0.0.0/0"
+variable "routes" {
+  type = list(object({
+    cidr_block     = string
+    gateway_id     = optional(string)
+    nat_gateway_id = optional(string)
+    # transit_gateway_id  = optional(string)
+  }))
 }
 
 variable "environment" {

@@ -38,9 +38,9 @@ variable "alb_sg_id" {
   sensitive   = false
 }
 
-variable "subnet_id" {
-  description = "The ID of the Subnet"
-  type        = string
+variable "subnet_ids" {
+  description = "The IDs of the subnets"
+  type        = list(string)
   sensitive   = false
 }
 

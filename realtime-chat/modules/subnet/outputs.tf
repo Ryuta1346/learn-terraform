@@ -1,9 +1,4 @@
-output "public_subnets" {
+output "subnet_ids" {
   description = "The public subnets for the VPC"
-  value       = aws_subnet.public_subnet[*].id
-}
-
-output "private_subnets" {
-  description = "The private subnets for the VPC"
-  value       = aws_subnet.private_subnet[*].id
+  value       = aws_subnet.subnet[*].id
 }

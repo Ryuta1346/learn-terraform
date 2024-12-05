@@ -7,6 +7,7 @@ resource "aws_ecs_cluster" "chat" {
   }
 
   tags = {
+    Name        = "${var.project_name}-${var.environment}-ecs-cluster"
     Environment = var.environment
     Project     = var.project_name
   }

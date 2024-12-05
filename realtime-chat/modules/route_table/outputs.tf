@@ -1,4 +1,4 @@
-output "vpc_id" {
-  value       = aws_vpc.vpc.id
-  description = "The ID of the Visitor's Chat VPC"
+output "route_table_id" {
+  description = "The ID of the route table"
+  value       = aws_route_table.table.id
 }

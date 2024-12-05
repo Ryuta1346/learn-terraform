@@ -40,3 +40,9 @@ variable "map_public_ip_on_launch" {
   sensitive   = false
   default     = false
 }
+
+# variable "route_table_id" {
+#   description = "The ID of the route table"
+#   type        = string
+#   sensitive   = false
+# }

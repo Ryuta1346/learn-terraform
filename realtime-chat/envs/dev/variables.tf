@@ -24,14 +24,14 @@ variable "company_vpc_cidr_block" {
 }
 
 variable "company_public_subnet_count" {
-  description = "The number of public subnets for the Visitor's VPC"
+  description = "The number of public subnets for the Company's VPC"
   type        = number
   sensitive   = false
 }
 
 
 variable "company_private_subnet_count" {
-  description = "The number of private subnets for the Visitor's VPC"
+  description = "The number of private subnets for the Company's VPC"
   type        = number
   sensitive   = false
 
