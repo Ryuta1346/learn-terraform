@@ -23,6 +23,7 @@ module "public_subnet" {
   availability_zones      = var.availability_zones
   map_public_ip_on_launch = true
   subnet_count            = var.public_subnet_count
+  private                 = false
 }
 
 module "public_route_table" {
@@ -59,14 +60,14 @@ module "public_alb_sg" {
 
 
 module "elb" {
-  depends_on   = [module.public_subnet]
-  source       = "../../modules/elb"
-  elb_name     = "company-chat-public"
-  vpc_id       = module.vpc.vpc_id
-  alb_sg_id    = module.public_alb_sg.alb_sg_id
-  subnet_ids   = module.public_subnet.subnet_ids
-  environment  = var.environment
-  project_name = var.project_name
+  depends_on                 = [module.public_subnet]
+  source                     = "../../modules/elb"
+  elb_name                   = "company-chat-public"
+  vpc_id                     = module.vpc.vpc_id
+  alb_sg_id                  = module.public_alb_sg.alb_sg_id
+  subnet_ids                 = module.public_subnet.subnet_ids
+  environment                = var.environment
+  project_name               = var.project_name
   enable_deletion_protection = false
 }
 
@@ -77,12 +78,12 @@ module "private_subnet" {
   vpc_id                  = module.vpc.vpc_id
   environment             = var.environment
   availability_zones      = var.availability_zones
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
+  private                 = true
   subnet_count            = var.private_subnet_count
-  # route_table_id          = module.private_route_tables.route_table_id
 }
 
-module "private_route_tables" {
+module "private_route_table" {
   depends_on   = [module.internet_gateway]
   source       = "../../modules/route_table"
   vpc_id       = module.vpc.vpc_id

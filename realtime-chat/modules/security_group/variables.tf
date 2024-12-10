@@ -5,8 +5,6 @@ variable "security_group_name" {
 
 }
 
-
-
 variable "vpc_id" {
   description = "The ID of the Chat VPC"
   type        = string

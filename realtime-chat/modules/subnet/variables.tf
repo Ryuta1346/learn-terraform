@@ -41,8 +41,9 @@ variable "map_public_ip_on_launch" {
   default     = false
 }
 
-# variable "route_table_id" {
-#   description = "The ID of the route table"
-#   type        = string
-#   sensitive   = false
-# }
+variable "private" {
+  description = "Whether the subnet is private"
+  type        = bool
+  sensitive   = false
+  default     = true
+}

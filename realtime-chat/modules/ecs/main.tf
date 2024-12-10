@@ -23,3 +23,4 @@ resource "aws_ecs_cluster_capacity_providers" "chat" {
     capacity_provider = var.capacity_providers[0]
   }
 }
+
