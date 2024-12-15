@@ -130,7 +130,7 @@ module "private1_sg" {
 module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "${var.project_name}-${var.environment}-sqs-chat"
-  vpc_id             = module.vpc.vpc_idc_id
+  vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
   security_group_ids = [module.private1_sg.sg_id]
