@@ -1,4 +1,4 @@
-name: Terraform Plan
+name: Terraform Plan/Apply
 
 on:
   workflow_dispatch: # 手動でのみ実行
@@ -7,6 +7,10 @@ on:
         description: 'Terraform directory to target (e.g., envs/dev)'
         required: true
         default: 'envs/dev'
+      execute_apply: # applyの実行を選択する入力
+        description: 'Set to true to execute terraform apply'
+        required: false
+        default: 'false'
 
 jobs:
   check-branch:
@@ -71,6 +75,7 @@ jobs:
         run: terraform plan -no-color
         continue-on-error: false
 
-    #   - name: Terraform Apply
-    #     id: apply
-    #     run: terraform apply -auto-approve
+      - name: Terraform Apply
+        id: apply
+        if: ${{ github.event.inputs.execute_apply == 'true' }} # applyが選択された場合のみ実行
+        run: terraform apply -auto-approve
