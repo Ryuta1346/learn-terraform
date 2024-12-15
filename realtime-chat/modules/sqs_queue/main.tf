@@ -11,8 +11,3 @@ resource "aws_sqs_queue" "visitor_chat_queue" {
     Project     = var.project_name
   }
 }
-
-resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
-  queue_url = aws_sqs_queue.visitor_chat_queue.id
-  policy    = data.aws_iam_policy_document.visitor_chat_queue_policy.json
-}
