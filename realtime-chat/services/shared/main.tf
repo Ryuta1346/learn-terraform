@@ -46,20 +46,12 @@ module "public_route_table" {
   ]
 }
 
-resource "aws_eip" "nat_eip" {
-  domain = "vpc"
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-nat-eip"
-    project     = var.project_name
-    environment = var.environment
-  }
-}
-
-resource "aws_nat_gateway" "nat_gateway" {
-  depends_on    = [module.internet_gateway, aws_eip.nat_eip]
-  allocation_id = aws_eip.nat_eip.id
-  subnet_id     = module.public_subnet.subnet_ids[0]
+module "public_nat_gateway" {
+  depends_on   = [module.internet_gateway]
+  source       = "../../modules/nat_gateway"
+  subnet_id    = module.public_subnet.subnet_ids[0]
+  environment  = var.environment
+  project_name = var.project_name
 }
 
 ## VPCエンドポイント用PrivateSubnet
@@ -126,19 +118,16 @@ module "private1_sg" {
 }
 
 ## VPCエンドポイント用PrivateSubnet:チャット永続処理用
-resource "aws_vpc_endpoint" "sqs_chat" {
-  vpc_id              = module.vpc.vpc_id
-  service_name        = "com.amazonaws.${var.region}.sqs"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = [module.private1_sg.sg_id]
-  subnet_ids          = [module.private_subnet1.subnet_ids[0]]
-  private_dns_enabled = true
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-sqs_chat-vpc-endpoint"
-    Environment = var.environment
-    Project     = var.project_name
-  }
+module "sqs_chat_vpc_endpoint" {
+  source             = "../../modules/vpc_endpoint"
+  id                 = "${var.project_name}-${var.environment}-sqs-chat"
+  vpc_id             = module.vpc.vpc_id
+  service_name       = "com.amazonaws.${var.region}.sqs"
+  endpoint_type      = "Interface"
+  security_group_ids = [module.private1_sg.sg_id]
+  subnet_ids         = [module.private_subnet1.subnet_ids[0]]
+  environment        = var.environment
+  project_name       = var.project_name
 }
 
 resource "aws_sqs_queue" "visitor_chat_queue" {
@@ -169,7 +158,7 @@ data "aws_iam_policy_document" "visitor_chat_queue_policy" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_vpc_endpoint.sqs_chat.arn]
+      values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
     }
     principals {
       type        = "AWS"
@@ -179,19 +168,16 @@ data "aws_iam_policy_document" "visitor_chat_queue_policy" {
 }
 
 ## VPCエンドポイント用PrivateSubnet:外部通知用
-resource "aws_vpc_endpoint" "sqs_notification" {
-  vpc_id              = module.vpc.vpc_id
-  service_name        = "com.amazonaws.${var.region}.sqs"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = [module.private1_sg.sg_id]
-  subnet_ids          = [module.private_subnet1.subnet_ids[0]]
-  private_dns_enabled = true
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-sqs_notification-vpc-endpoint"
-    Environment = var.environment
-    Project     = var.project_name
-  }
+module "sqs_notify_vpc_endpoint" {
+  source             = "../../modules/vpc_endpoint"
+  id                 = "${var.project_name}-${var.environment}-sqs-notify"
+  vpc_id             = module.vpc.vpc_id
+  service_name       = "com.amazonaws.${var.region}.sqs"
+  endpoint_type      = "Interface"
+  security_group_ids = [module.private1_sg.sg_id]
+  subnet_ids         = [module.private_subnet1.subnet_ids[0]]
+  environment        = var.environment
+  project_name       = var.project_name
 }
 
 resource "aws_sqs_queue" "notification_queue" {

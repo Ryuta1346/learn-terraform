@@ -1,12 +1,15 @@
-resource "aws_nat_gateway" "example" {
-  allocation_id = aws_eip.example.id
-  subnet_id     = aws_subnet.example.id
+resource "aws_eip" "nat_eip" {
+  domain = "vpc"
 
   tags = {
-    Name = "gw NAT"
+    Name        = "${var.project_name}-${var.environment}-nat-eip"
+    project     = var.project_name
+    environment = var.environment
   }
+}
 
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
-  depends_on = [aws_internet_gateway.example]
+resource "aws_nat_gateway" "nat_gateway" {
+  depends_on    = [aws_eip.nat_eip]
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = var.subnet_id
 }
