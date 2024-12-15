@@ -1,5 +1,5 @@
 module "public_subnet" {
-  source     = "../../modules/subnet"
+  source = "../../modules/subnet"
   subnet_vars = [
     {
       id                      = "${var.project_name}-${var.environment}-company-public-1"
