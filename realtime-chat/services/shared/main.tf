@@ -1,11 +1,11 @@
 variable "subnet_cidrs" {
   description = "The CIDR blocks for the subnets"
-  type        = object({
-    public_1 = string
-    public_2 = string
+  type = object({
+    public_1  = string
+    public_2  = string
     private_1 = string
   })
-  sensitive   = false
+  sensitive = false
   default = {
     public_1  = cidrsubnet(var.vpc_cidr_block, 24, 16)
     private_1 = cidrsubnet(var.vpc_cidr_block, 24, 17)
