@@ -59,7 +59,7 @@ resource "aws_eip" "nat_eip" {
 resource "aws_nat_gateway" "nat_gateway" {
   depends_on    = [module.internet_gateway, aws_eip.nat_eip]
   allocation_id = aws_eip.nat_eip.id
-  subnet_id     = module.public_subnet.subnet_ids["${var.project_name}-${var.environment}-shared-public-1"]
+  subnet_id     = module.public_subnet.subnet_ids[0]
 }
 
 ## VPCエンドポイント用PrivateSubnet
