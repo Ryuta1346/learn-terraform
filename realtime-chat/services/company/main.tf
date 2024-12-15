@@ -1,3 +1,18 @@
+variable "subnet_cidrs" {
+  description = "The CIDR blocks for the subnets"
+  type        = list(object({
+    public_1 = string
+    public_2 = string
+    private_1 = string
+  }))
+  sensitive   = false
+  default = [ {
+    public_1  = cidrsubnet(var.vpc_cidr_block, 24, 8)
+    public_2  = cidrsubnet(var.vpc_cidr_block, 24, 9)
+    private_1 = cidrsubnet(var.vpc_cidr_block, 24, 10)
+  } ]
+}
+
 module "public_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [

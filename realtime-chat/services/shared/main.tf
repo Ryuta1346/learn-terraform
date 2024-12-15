@@ -1,3 +1,17 @@
+variable "subnet_cidrs" {
+  description = "The CIDR blocks for the subnets"
+  type        = object({
+    public_1 = string
+    public_2 = string
+    private_1 = string
+  })
+  sensitive   = false
+  default = {
+    public_1  = cidrsubnet(var.vpc_cidr_block, 24, 16)
+    private_1 = cidrsubnet(var.vpc_cidr_block, 24, 17)
+  }
+}
+
 module "public_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [
@@ -5,7 +19,7 @@ module "public_subnet" {
       id                      = "${var.project_name}-${var.environment}-shared-public-1"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 0)
+      cidr_block              = var.subnet_cidrs.public_1
       map_public_ip_on_launch = true
       is_private              = false
     }
@@ -44,7 +58,7 @@ module "private_subnet1" {
       id                      = "${var.project_name}-${var.environment}-shared-private-1"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 1)
+      cidr_block              = subnet_cidrs.private_1
       map_public_ip_on_launch = false
       is_private              = true
     }
