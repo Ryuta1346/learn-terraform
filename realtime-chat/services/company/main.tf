@@ -19,7 +19,7 @@ module "public_subnet" {
       id                      = "${var.project_name}-${var.environment}-company-public-1"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, var.net_nums.public_1)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.public_1)
       map_public_ip_on_launch = true
       is_private              = false
     },
@@ -27,7 +27,7 @@ module "public_subnet" {
       id                      = "${var.project_name}-${var.environment}-company-public-2"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[1]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, var.net_nums.public_2)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.public_2)
       map_public_ip_on_launch = true
       is_private              = false
     }
@@ -111,7 +111,7 @@ module "private_subnet" {
       id                      = "${var.project_name}-${var.environment}-company-private-1"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, var.net_nums.private_1)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.private_1)
       map_public_ip_on_launch = false
       is_private              = true
     }
