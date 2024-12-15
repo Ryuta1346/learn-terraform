@@ -120,7 +120,7 @@ module "private1_sg" {
 ## VPCエンドポイント用PrivateSubnet:チャット永続処理用
 module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  name                 = "${var.project_name}-${var.environment}-sqs-chat"
+  name               = "${var.project_name}-${var.environment}-sqs-chat"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.${var.region}.sqs"
   endpoint_type      = "Interface"
@@ -130,47 +130,41 @@ module "sqs_chat_vpc_endpoint" {
   project_name       = var.project_name
 }
 
-resource "aws_sqs_queue" "visitor_chat_queue" {
-  name                        = "${var.project_name}-${var.environment}-visitor-chat-queue.fifo"
-  fifo_queue                  = true
-  content_based_deduplication = true
-  delay_seconds               = 0 // default:0
-  receive_wait_time_seconds   = 0 // default:0
+module "visitor_chat_queue" {
+  source = "../../modules/sqs_queue"
+  queue_name = "${var.project_name}-${var.environment}-visitor-chat-queue.fifo"
+  queue_options = {
+    fifo_queue                = true
+    delay_seconds             = 0
+    receive_wait_time_seconds = 0
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
 
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
+module "visitor_chat_queue_policy" {
+  source = "../../modules/iam_policy"
+  sid = "AllowVPCEndpointAccess"
+  effect = "Allow"
+  actions = ["sqs:SendMessage"]
+  resources = [module.visitor_chat_queue.arn]
+  condition_vars = {
+    test = "ArnEquals"
+    variable = "aws:SourceArn"
+    values = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
   }
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
-  queue_url = aws_sqs_queue.visitor_chat_queue.id
-  policy    = data.aws_iam_policy_document.visitor_chat_queue_policy.json
+  queue_url = module.visitor_chat_queue.queue_id
+  policy    = module.visitor_chat_queue_policy.policy.json
 }
 
-data "aws_iam_policy_document" "visitor_chat_queue_policy" {
-  statement {
-    sid       = "AllowVPCEndpointAccess" // 管理用に設定
-    effect    = "Allow"
-    actions   = ["sqs:SendMessage"]
-    resources = [aws_sqs_queue.visitor_chat_queue.arn]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
-    }
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-  }
-}
 
 ## VPCエンドポイント用PrivateSubnet:外部通知用
 module "sqs_notify_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  name                 = "${var.project_name}-${var.environment}-sqs-notify"
+  name               = "${var.project_name}-${var.environment}-sqs-notify"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.${var.region}.sqs"
   endpoint_type      = "Interface"
@@ -180,40 +174,32 @@ module "sqs_notify_vpc_endpoint" {
   project_name       = var.project_name
 }
 
-resource "aws_sqs_queue" "notification_queue" {
-  name                        = "${var.project_name}-${var.environment}-notification-queue.fifo"
-  fifo_queue                  = true
-  content_based_deduplication = true
-  delay_seconds               = 0 // default:0
-  receive_wait_time_seconds   = 0 // default:0
-
-  tags = {
-    Environment = var.environment
-    Project     = var.project_name
+module "notification_queue" {
+  source = "../../modules/sqs_queue"
+  queue_name = "${var.project_name}-${var.environment}-notification-queue.fifo"
+  queue_options = {
+    fifo_queue                = true
+    delay_seconds             = 0
+    receive_wait_time_seconds = 0
   }
+  environment  = var.environment
+  project_name = var.project_name
 }
 
-
-data "aws_iam_policy_document" "notification_queue_policy" {
-  statement {
-    sid       = "AllowVPCEndpointAccess" // 管理用に設定
-    effect    = "Allow"
-    actions   = ["sqs:SendMessage"]
-    resources = [aws_sqs_queue.visitor_chat_queue.arn]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "aws:SourceArn"
-      values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
-    }
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
+module "notification_queue_policy" {
+  source = "../../modules/iam_policy"
+  sid = "AllowVPCEndpointAccess"
+  effect = "Allow"
+  actions = ["sqs:SendMessage"]
+  resources = [module.notification_queue.arn]
+  condition_vars = {
+    test = "ArnEquals"
+    variable = "aws:SourceArn"
+    values = [module.sqs_notify_vpc_endpoint.vpc_endpoint_arn]
   }
 }
 
 resource "aws_sqs_queue_policy" "notification_queue_policy" {
-  queue_url = aws_sqs_queue.notification_queue.id
-  policy    = data.aws_iam_policy_document.notification_queue_policy.json
+  queue_url = module.notification_queue.queue_id
+  policy    = module.notification_queue_policy.policy.json
 }
