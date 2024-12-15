@@ -20,7 +20,7 @@ resource "aws_security_group_rule" "ingress" {
   description       = each.value.description
 
   source_security_group_id = contains(keys(each.value), "source_security_group_id") ? each.value.source_security_group_id : null
-  cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : []
+  cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : null
 }
 
 resource "aws_security_group_rule" "egress" {
@@ -34,5 +34,5 @@ resource "aws_security_group_rule" "egress" {
   description       = each.value.description
 
   source_security_group_id = contains(keys(each.value), "source_security_group_id") ? each.value.source_security_group_id : null
-  cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : []
+  cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : null
 }
