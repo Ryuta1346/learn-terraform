@@ -1,4 +1,4 @@
-name: Terraform Init
+name: Terraform Plan
 
 on:
   workflow_dispatch: # 手動でのみ実行
@@ -7,8 +7,6 @@ on:
         description: 'Terraform directory to target (e.g., envs/dev)'
         required: true
         default: 'envs/dev'
-
-env:
 
 jobs:
   check-branch:
