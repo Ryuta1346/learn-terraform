@@ -1,0 +1,78 @@
+name: Terraform Init
+
+on:
+  workflow_dispatch: # 手動でのみ実行
+    inputs:
+      directory: # 実行したいディレクトリを指定
+        description: 'Terraform directory to target (e.g., envs/dev)'
+        required: true
+        default: 'envs/dev'
+
+env:
+
+jobs:
+  check-branch:
+    name: Check Default Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if branch is a default branch
+        run: |
+          if [[ ${{ github.ref_name }} != ${{ github.event.repository.default_branch }} ]]; then
+            echo "${{ github.event.repository.default_branch }} ブランチのみが許可されています"
+            exit 1
+          fi
+
+  terraform-plan:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: ${{ github.event.inputs.directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-1
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActions
+          role-duration-seconds: 28800
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: false
+
+      - name: Check if directory is not empty
+        id: check
+        run: |
+          if [ "$(ls -A ${{ github.event.inputs.directory }})" ]; then
+            echo "Directory is not empty"
+          else
+            echo "Directory is empty"
+            exit 1
+          fi
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Check Terraform Version
+        run: terraform --version
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: false
+
+    #   - name: Terraform Apply
+    #     id: apply
+    #     run: terraform apply -auto-approve
