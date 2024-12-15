@@ -1,3 +1,18 @@
+variable "net_nums" {
+  description = "The number of subnets to create"
+  type        = object({
+    public_1 = number
+    public_2 = number
+    private_1 = number
+  })
+  sensitive   = false
+  default = {
+    public_1 = 3
+    public_2 = 4
+    private_1 = 5
+  }
+}
+
 module "public_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [
@@ -5,7 +20,7 @@ module "public_subnet" {
       id                      = "${var.project_name}-${var.environment}-visitor-public-1"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, 8)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, var.net_nums.public_1)
       map_public_ip_on_launch = true
       is_private              = false
     },
@@ -13,7 +28,7 @@ module "public_subnet" {
       id                      = "${var.project_name}-${var.environment}-visitor-public-2"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[1]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, 9)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, var.net_nums.public_2)
       map_public_ip_on_launch = true
       is_private              = false
     }
@@ -98,7 +113,7 @@ module "private_subnet" {
       id                      = "${var.project_name}-${var.environment}-visitor-private-1"
       vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, 10)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 24, var.net_nums.private_1)
       map_public_ip_on_launch = false
       is_private              = true
     }
