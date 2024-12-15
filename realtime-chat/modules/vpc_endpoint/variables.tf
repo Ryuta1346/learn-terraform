@@ -1,4 +1,4 @@
-variable "id" {
+variable "name" {
   description = "The VPC endpoint ID"
   type        = string
   sensitive   = false

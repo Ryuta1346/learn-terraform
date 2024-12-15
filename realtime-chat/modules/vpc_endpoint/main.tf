@@ -15,7 +15,6 @@
 # }
 
 resource "aws_vpc_endpoint" "endpoint" {
-  id                  = var.id
   vpc_id              = var.vpc_id
   service_name        = var.service_name
   vpc_endpoint_type   = var.endpoint_type
@@ -24,7 +23,7 @@ resource "aws_vpc_endpoint" "endpoint" {
   private_dns_enabled = true
 
   tags = {
-    Name        = var.id
+    Name        = var.name
     Environment = var.environment
     Project     = var.project_name
   }

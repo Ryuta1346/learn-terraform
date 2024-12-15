@@ -120,7 +120,7 @@ module "private1_sg" {
 ## VPCエンドポイント用PrivateSubnet:チャット永続処理用
 module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  id                 = "${var.project_name}-${var.environment}-sqs-chat"
+  name                 = "${var.project_name}-${var.environment}-sqs-chat"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.${var.region}.sqs"
   endpoint_type      = "Interface"
@@ -170,7 +170,7 @@ data "aws_iam_policy_document" "visitor_chat_queue_policy" {
 ## VPCエンドポイント用PrivateSubnet:外部通知用
 module "sqs_notify_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  id                 = "${var.project_name}-${var.environment}-sqs-notify"
+  name                 = "${var.project_name}-${var.environment}-sqs-notify"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.${var.region}.sqs"
   endpoint_type      = "Interface"
@@ -204,7 +204,7 @@ data "aws_iam_policy_document" "notification_queue_policy" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_vpc_endpoint.sqs_chat.arn]
+      values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
     }
     principals {
       type        = "AWS"
