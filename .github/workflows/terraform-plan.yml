@@ -13,19 +13,8 @@ on:
         default: 'false'
 
 jobs:
-  check-branch:
-    name: Check Default Branch
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if branch is a default branch
-        run: |
-          if [[ ${{ github.ref_name }} != ${{ github.event.repository.default_branch }} ]]; then
-            echo "${{ github.event.repository.default_branch }} ブランチのみが許可されています"
-            exit 1
-          fi
-
   terraform-plan:
-    name: Terraform Plan
+    name: Terraform Plan or Apply
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -34,12 +23,32 @@ jobs:
       run:
         working-directory: ${{ github.event.inputs.directory }}
     steps:
+      # リポジトリをチェックアウト
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ディレクトリの存在確認
+      - name: Validate Directory Exists
+        run: |
+          echo "Checking directory: ${{ github.event.inputs.directory }}"
+          if [ ! -d "${{ github.event.inputs.directory }}" ]; then
+            echo "Error: Directory does not exist: ${{ github.event.inputs.directory }}"
+            exit 1
+          fi
+
+      # Terraformファイルの存在確認
+      - name: Check for Terraform Files
+        run: |
+          if [ -z "$(find ${{ github.event.inputs.directory }} -name '*.tf')" ]; then
+            echo "Error: No Terraform files found in the directory: ${{ github.event.inputs.directory }}"
+            exit 1
+          fi
+
+      # Terraformのセットアップ
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      # AWS認証情報のセットアップ
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -48,30 +57,26 @@ jobs:
           role-session-name: GitHubActions
           role-duration-seconds: 3600
 
-      - name: Validate Directory Exists
-        run: |
-          if [ ! -d "${{ github.event.inputs.directory }}" ]; then
-            echo "指定されたディレクトリが存在しません: ${{ github.event.inputs.directory }}"
-            exit 1
-          fi
-
-      - name: Terraform Format
-        id: fmt
+      # Terraformコードのフォーマットチェック
+      - name: Terraform Format Check
         run: terraform fmt -check
         continue-on-error: false
 
+      # Terraformの初期化
       - name: Terraform Init
-        id: init
         run: terraform init
 
+      # Terraformバージョンの確認
       - name: Check Terraform Version
         run: terraform --version
 
+      # Terraform Planの実行
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
         continue-on-error: false
 
+      # Terraform Applyの実行 (条件付き)
       - name: Terraform Apply
         id: apply
         if: ${{ github.event.inputs.execute_apply == 'true' }} # applyが選択された場合のみ実行
