@@ -27,21 +27,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ディレクトリの存在確認
-      - name: Validate Directory Exists
+      # リポジトリ内にディレクトリが存在するか確認
+      - name: Validate Directory Exists in Repository
         run: |
-          echo "Checking directory: ${{ github.event.inputs.directory }}"
-          if [ ! -d "${{ github.event.inputs.directory }}" ]; then
-            echo "Error: Directory does not exist: ${{ github.event.inputs.directory }}"
+          echo "Checking if the directory exists within the repository: ${{ github.event.inputs.directory }}"
+          REPO_ROOT=$(git rev-parse --show-toplevel) # リポジトリのルートを取得
+          TARGET_DIR="$REPO_ROOT/${{ github.event.inputs.directory }}" # ターゲットディレクトリを構築
+
+          if [ ! -d "$TARGET_DIR" ]; then
+            echo "Error: The directory '${{ github.event.inputs.directory }}' does not exist in the repository."
+            echo "Checked path: $TARGET_DIR"
             exit 1
+          else
+            echo "Success: The directory '${{ github.event.inputs.directory }}' exists in the repository."
+            echo "Verified path: $TARGET_DIR"
           fi
 
       # Terraformファイルの存在確認
       - name: Check for Terraform Files
         run: |
+          echo "Checking for Terraform files in directory: ${{ github.event.inputs.directory }}"
           if [ -z "$(find ${{ github.event.inputs.directory }} -name '*.tf')" ]; then
             echo "Error: No Terraform files found in the directory: ${{ github.event.inputs.directory }}"
             exit 1
+          else
+            echo "Success: Terraform files found in the directory: ${{ github.event.inputs.directory }}"
           fi
 
       # Terraformのセットアップ
