@@ -51,8 +51,8 @@ resource "aws_iam_policy" "full_access_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = "*",
+        Effect   = "Allow",
+        Action   = "*",
         Resource = "*"
       }
     ]

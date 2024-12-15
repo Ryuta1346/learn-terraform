@@ -48,20 +48,17 @@ jobs:
           role-session-name: GitHubActions
           role-duration-seconds: 3600
 
+      - name: Validate Directory Exists
+        run: |
+          if [ ! -d "${{ github.event.inputs.directory }}" ]; then
+            echo "指定されたディレクトリが存在しません: ${{ github.event.inputs.directory }}"
+            exit 1
+          fi
+
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check
         continue-on-error: false
-
-      - name: Check if directory is not empty
-        id: check
-        run: |
-          if [ "$(ls -A ${{ github.event.inputs.directory }})" ]; then
-            echo "Directory is not empty"
-          else
-            echo "Directory is empty"
-            exit 1
-          fi
 
       - name: Terraform Init
         id: init
