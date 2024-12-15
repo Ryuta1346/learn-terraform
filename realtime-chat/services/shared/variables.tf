@@ -1,8 +1,8 @@
-variable "vpc_id" {
-  description = "The ID of the VPC"
-  type        = string
-  sensitive   = false
-}
+# variable "vpc_id" {
+#   description = "The ID of the VPC"
+#   type        = string
+#   sensitive   = false
+# }
 
 variable "vpc_cidr_block" {
   description = "The CIDR block for the VPC"
@@ -10,11 +10,11 @@ variable "vpc_cidr_block" {
   sensitive   = false
 }
 
-variable "internet_gateway_id" {
-  description = "The ID of the internet gateway"
-  type        = string
-  sensitive   = false
-}
+# variable "internet_gateway_id" {
+#   description = "The ID of the internet gateway"
+#   type        = string
+#   sensitive   = false
+# }
 
 variable "availability_zones" {
   description = "The availability zones for the service"

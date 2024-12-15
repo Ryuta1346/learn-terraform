@@ -12,12 +12,28 @@ variable "net_nums" {
     private_1 = 2
   }
 }
+
+module "vpc" {
+  source         = "../../modules/vpc"
+  project_name   = var.project_name
+  environment    = var.environment
+  vpc_cidr_block = var.vpc_cidr_block
+}
+
+module "internet_gateway" {
+  depends_on   = [module.vpc]
+  source       = "../../modules/internet_gateway/"
+  vpc_id       = module.vpc.vpc_id
+  environment  = var.environment
+  project_name = var.project_name
+}
+
 module "public_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [
     {
       id                      = "${var.project_name}-${var.environment}-company-public-1"
-      vpc_id                  = var.vpc_id
+      vpc_id                  = module.vpc.vpc_id
       availability_zone       = var.availability_zones[0]
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.public_1)
       map_public_ip_on_launch = true
@@ -25,7 +41,7 @@ module "public_subnet" {
     },
     {
       id                      = "${var.project_name}-${var.environment}-company-public-2"
-      vpc_id                  = var.vpc_id
+      vpc_id                  = module.vpc.vpc_id
       availability_zone       = var.availability_zones[1]
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.public_2)
       map_public_ip_on_launch = true
@@ -38,14 +54,14 @@ module "public_subnet" {
 
 module "public_route_table" {
   source       = "../../modules/route_table"
-  vpc_id       = var.vpc_id
+  vpc_id       = module.vpc.vpc_id
   subnet_ids   = module.public_subnet.subnet_ids
   environment  = var.environment
   project_name = var.project_name
   routes = [
     {
       cidr_block = "0.0.0.0/0",
-      gateway_id = var.internet_gateway_id
+      gateway_id = module.internet_gateway.internet_gateway_id
     }
   ]
 }
@@ -54,7 +70,7 @@ module "public_alb_sg" {
   source              = "../../modules/security_group"
   security_group_name = "company-chat-public"
   description         = "The security group for the public ALB"
-  vpc_id              = var.vpc_id
+  vpc_id              = module.vpc.vpc_id
   sg_rules = {
     ingress_rules = [
       {
@@ -109,7 +125,7 @@ module "private_subnet" {
   subnet_vars = [
     {
       id                      = "${var.project_name}-${var.environment}-company-private-1"
-      vpc_id                  = var.vpc_id
+      vpc_id                  = module.vpc.vpc_id
       availability_zone       = var.availability_zones[0]
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.private_1)
       map_public_ip_on_launch = false
@@ -123,7 +139,7 @@ module "private_subnet" {
 module "private_route_table" {
   source       = "../../modules/route_table"
   subnet_ids   = module.private_subnet.subnet_ids
-  vpc_id       = var.vpc_id
+  vpc_id       = module.vpc.vpc_id
   environment  = var.environment
   project_name = var.project_name
   routes = [
@@ -138,7 +154,7 @@ module "private_sg" {
   source              = "../../modules/security_group"
   security_group_name = "company-chat-private"
   description         = "Security group for the private subnet"
-  vpc_id              = var.vpc_id
+  vpc_id              = module.vpc.vpc_id
   sg_rules = {
     ingress_rules = [{
       from_port                = 80
