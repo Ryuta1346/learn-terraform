@@ -18,3 +18,9 @@ resource "aws_route_table" "table" {
     Project     = var.project_name
   }
 }
+
+resource "aws_route_table_association" "association" {
+  for_each       = { for idx, id in var.subnet_ids : idx => id }
+  subnet_id      = each.value
+  route_table_id = aws_route_table.table.id
+}

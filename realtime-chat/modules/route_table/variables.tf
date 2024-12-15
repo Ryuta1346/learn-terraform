@@ -13,6 +13,12 @@ variable "routes" {
   }))
 }
 
+variable "subnet_ids" {
+  description = "The IDs of the subnets"
+  type        = list(string)
+  sensitive   = false
+}
+
 variable "environment" {
   description = "The environment for the VPC"
   type        = string

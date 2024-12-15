@@ -10,20 +10,6 @@ variable "availability_zones" {
   sensitive   = false
 }
 
-
-variable "public_subnet_count" {
-  description = "The number of public subnets to create"
-  type        = number
-  sensitive   = false
-}
-
-
-variable "private_subnet_count" {
-  description = "The number of public subnets to create"
-  type        = number
-  sensitive   = false
-}
-
 variable "environment" {
   description = "The environment for the service"
   type        = string
@@ -46,5 +32,4 @@ variable "visitor_chat_sg_id" {
   description = "The security group ID for the Visitor Chat service"
   type        = string
   sensitive   = false
-
 }

@@ -1,12 +1,12 @@
 resource "aws_subnet" "subnet" {
-  count                   = var.subnet_count
-  vpc_id                  = var.vpc_id
-  cidr_block              = cidrsubnet(var.cidr_block, var.subnet_count, count.index)
-  availability_zone       = var.availability_zones[count.index % length(var.availability_zones)]
-  map_public_ip_on_launch = var.map_public_ip_on_launch
+  for_each                = { for subnet in var.subnet_vars : subnet.id => subnet }
+  vpc_id                  = each.value.vpc_id
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.availability_zone
+  map_public_ip_on_launch = each.value.map_public_ip_on_launch
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-${var.private ? "private" : "public"}-subnet-${var.availability_zones[count.index % length(var.availability_zones)]}-${count.index}"
+    Name        = "${var.project_name}-${var.environment}-${each.value.is_private ? "private" : "public"}-${each.value.availability_zone}"
     Environment = var.environment
     Project     = var.project_name
   }

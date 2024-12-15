@@ -4,53 +4,15 @@ variable "visitor_vpc_cidr_block" {
   sensitive   = false
 }
 
-variable "visitor_public_subnet_count" {
-  description = "The number of public subnets for the Visitor's VPC"
-  type        = number
-  sensitive   = false
-}
-
-variable "visitor_private_subnet_count" {
-  description = "The number of private subnets for the Visitor's VPC"
-  type        = number
-  sensitive   = false
-}
-
 variable "company_vpc_cidr_block" {
   description = "The CIDR block for the Company's VPC"
   type        = string
   sensitive   = false
 }
 
-variable "company_public_subnet_count" {
-  description = "The number of public subnets for the Company's VPC"
-  type        = number
-  sensitive   = false
-}
-
-
-variable "company_private_subnet_count" {
-  description = "The number of private subnets for the Company's VPC"
-  type        = number
-  sensitive   = false
-
-}
-
 variable "shared_vpc_cidr_block" {
   description = "The CIDR block for the Shared's VPC"
   type        = string
-  sensitive   = false
-}
-
-variable "shared_public_subnet_count" {
-  description = "The number of public subnets for the Shared's VPC"
-  type        = number
-  sensitive   = false
-}
-
-variable "shared_private_subnet_count" {
-  description = "The number of private subnets for the Shared's VPC"
-  type        = number
   sensitive   = false
 }
 
@@ -71,4 +33,10 @@ variable "project_name" {
   type        = string
   sensitive   = false
 
+}
+
+variable "environment" {
+  description = "The environment for the VPC"
+  type        = string
+  sensitive   = false
 }

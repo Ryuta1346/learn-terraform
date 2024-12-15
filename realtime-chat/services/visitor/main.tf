@@ -14,16 +14,21 @@ module "internet_gateway" {
 }
 
 module "public_subnet" {
-  depends_on              = [module.internet_gateway]
-  source                  = "../../modules/subnet"
-  cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 1)
-  project_name            = var.project_name
-  vpc_id                  = module.vpc.vpc_id
-  environment             = var.environment
-  availability_zones      = var.availability_zones
-  map_public_ip_on_launch = true
-  private                 = false
-  subnet_count            = var.public_subnet_count
+  depends_on = [module.internet_gateway]
+  source     = "../../modules/subnet"
+  subnet_vars = [
+    {
+      id                      = "${var.project_name}-${var.environment}-visitor-public-1"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[0]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 0)
+      map_public_ip_on_launch = true
+      is_private              = false
+    }
+  ]
+  environment  = var.environment
+  project_name = var.project_name
+
 }
 
 module "public_route_table" {
@@ -32,6 +37,7 @@ module "public_route_table" {
   vpc_id       = module.vpc.vpc_id
   environment  = var.environment
   project_name = var.project_name
+  subnet_ids   = module.public_subnet.subnet_ids
   routes = [
     {
       cidr_block = "0.0.0.0/0",
@@ -40,45 +46,74 @@ module "public_route_table" {
   ]
 }
 
-
-resource "aws_route_table_association" "association" {
-  depends_on     = [module.public_subnet, module.public_route_table]
-  for_each       = { for idx, id in module.public_subnet.subnet_ids : idx => id }
-  subnet_id      = each.value
-  route_table_id = module.public_route_table.route_table_id
-}
-
-module "visitor_chat_sg" {
+module "public_alb_sg" {
   source              = "../../modules/security_group"
   security_group_name = "visitor-chat-public"
+  description         = "The security group for the public ALB"
   vpc_id              = module.vpc.vpc_id
-  environment         = var.environment
-  project_name        = var.project_name
+  sg_rules = {
+    ingress_rules = [
+      {
+        from_port   = 80
+        to_port     = 80
+        protocol    = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+        description = "Allow HTTP traffic from anywhere"
+      },
+      {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "TCP"
+        cidr_blocks = ["0.0.0.0/0"]
+        description = "Allow HTTPS traffic from anywhere"
+      }
+    ],
+    egress_rules = [
+      {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+        description = "Allow all outbound traffic"
+      }
+    ]
+  }
+  environment  = var.environment
+  project_name = var.project_name
 }
 
-
 module "elb" {
-  depends_on                 = [module.public_subnet]
-  source                     = "../../modules/elb"
-  elb_name                   = "visitor-chat-public"
-  vpc_id                     = module.vpc.vpc_id
-  alb_sg_id                  = module.visitor_chat_sg.alb_sg_id
-  subnet_ids                 = module.public_subnet.subnet_ids
-  environment                = var.environment
-  project_name               = var.project_name
-  enable_deletion_protection = false
+  depends_on = [module.public_subnet]
+  source     = "../../modules/elb"
+  elb_vars = [
+    {
+      elb_name                   = "visitor-chat"
+      internal                   = false
+      load_balancer_type         = "application"
+      security_group_ids         = [module.public_alb_sg.sg_id]
+      subnet_ids                 = module.public_subnet.subnet_ids
+      enable_deletion_protection = false
+      access_logs_enabled        = false
+    }
+  ]
+  environment  = var.environment
+  project_name = var.project_name
 }
 
 module "private_subnet" {
-  source                  = "../../modules/subnet"
-  cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 2)
-  project_name            = var.project_name
-  vpc_id                  = module.vpc.vpc_id
-  environment             = var.environment
-  availability_zones      = var.availability_zones
-  map_public_ip_on_launch = false
-  private                 = true
-  subnet_count            = var.private_subnet_count
+  source = "../../modules/subnet"
+  subnet_vars = [
+    {
+      id                      = "${var.project_name}-${var.environment}-visitor-private-1"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[0]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 1)
+      map_public_ip_on_launch = false
+      is_private              = true
+    }
+  ]
+  environment  = var.environment
+  project_name = var.project_name
 }
 
 module "private_route_table" {
@@ -87,6 +122,7 @@ module "private_route_table" {
   vpc_id       = module.vpc.vpc_id
   environment  = var.environment
   project_name = var.project_name
+  subnet_ids   = module.private_subnet.subnet_ids
   routes = [
     {
       cidr_block = var.vpc_cidr_block,
@@ -95,9 +131,43 @@ module "private_route_table" {
   ]
 }
 
+module "private_sg" {
+  source              = "../../modules/security_group"
+  security_group_name = "visitor-chat-private"
+  description         = "Security group for the private subnet"
+  vpc_id              = module.vpc.vpc_id
+  sg_rules = {
+    ingress_rules = [{
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      source_security_group_id = module.public_alb_sg.sg_id
+      },
+      {
+        from_port                = 443
+        to_port                  = 443
+        protocol                 = "tcp"
+        source_security_group_id = module.public_alb_sg.sg_id
+    }],
+    egress_rules = [{
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }]
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
+
 module "ecs" {
-  source           = "../../modules/ecs"
-  ecs_cluster_name = "visitor-chat"
-  environment      = var.environment
-  project_name     = var.project_name
+  source = "../../modules/ecs"
+  ecs_cluster_vars = {
+    ecs_cluster_name     = "visitor-chat"
+    capacity_providers   = ["FARGATE"]
+    default_base_count   = 1
+    default_weight_count = 1
+  }
+  environment  = var.environment
+  project_name = var.project_name
 }
