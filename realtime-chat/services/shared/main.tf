@@ -1,14 +1,7 @@
-module "vpc" {
-  source         = "../../modules/vpc"
-  project_name   = var.project_name
-  environment    = var.environment
-  vpc_cidr_block = var.vpc_cidr_block
-}
-
 module "internet_gateway" {
   depends_on   = [module.vpc]
   source       = "../../modules/internet_gateway/"
-  vpc_id       = module.vpc.vpc_id
+  vpc_id       = var.vpc_id
   environment  = var.environment
   project_name = var.project_name
 }
@@ -19,7 +12,7 @@ module "public_subnet" {
   subnet_vars = [
     {
       id                      = "${var.project_name}-${var.environment}-shared-public-1"
-      vpc_id                  = module.vpc.vpc_id
+      vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 0)
       map_public_ip_on_launch = true
@@ -34,7 +27,7 @@ module "public_subnet" {
 module "public_route_table" {
   depends_on   = [module.internet_gateway]
   source       = "../../modules/route_table"
-  vpc_id       = module.vpc.vpc_id
+  vpc_id       = var.vpc_id
   subnet_ids   = module.public_subnet.subnet_ids
   environment  = var.environment
   project_name = var.project_name
@@ -60,7 +53,7 @@ module "private_subnet1" {
   subnet_vars = [
     {
       id                      = "${var.project_name}-${var.environment}-shared-private-1"
-      vpc_id                  = module.vpc.vpc_id
+      vpc_id                  = var.vpc_id
       availability_zone       = var.availability_zones[0]
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 1)
       map_public_ip_on_launch = false
@@ -74,7 +67,7 @@ module "private_subnet1" {
 module "private_route_table" {
   depends_on   = [module.internet_gateway]
   source       = "../../modules/route_table"
-  vpc_id       = module.vpc.vpc_id
+  vpc_id       = var.vpc_id
   subnet_ids   = module.private_subnet1.subnet_ids
   environment  = var.environment
   project_name = var.project_name
@@ -90,7 +83,7 @@ module "private_route_table" {
 
 module "private1_sg" {
   source              = "../../modules/security_group"
-  vpc_id              = module.vpc.vpc_id
+  vpc_id              = var.vpc_id
   security_group_name = "private1"
   description         = "Security group for the private subnet no1"
   sg_rules = {
@@ -121,7 +114,7 @@ module "private1_sg" {
 module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "${var.project_name}-${var.environment}-sqs-chat"
-  vpc_id             = module.vpc.vpc_id
+  vpc_id             = var.vpc_id
   service_name       = "com.amazonaws.${var.region}.sqs"
   endpoint_type      = "Interface"
   security_group_ids = [module.private1_sg.sg_id]
@@ -165,7 +158,7 @@ resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
 module "sqs_notify_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "${var.project_name}-${var.environment}-sqs-notify"
-  vpc_id             = module.vpc.vpc_id
+  vpc_id             = var.vpc_id
   service_name       = "com.amazonaws.${var.region}.sqs"
   endpoint_type      = "Interface"
   security_group_ids = [module.private1_sg.sg_id]
