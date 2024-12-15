@@ -43,17 +43,6 @@ jobs:
             echo "Verified path: $TARGET_DIR"
           fi
 
-      # Terraformファイルの存在確認
-      - name: Check for Terraform Files
-        run: |
-          echo "Checking for Terraform files in directory: ${{ github.event.inputs.directory }}"
-          if [ -z "$(find ${{ github.event.inputs.directory }} -name '*.tf')" ]; then
-            echo "Error: No Terraform files found in the directory: ${{ github.event.inputs.directory }}"
-            exit 1
-          else
-            echo "Success: Terraform files found in the directory: ${{ github.event.inputs.directory }}"
-          fi
-
       # Terraformのセットアップ
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
