@@ -1,6 +1,6 @@
 ## サービス・タスク定義の管理はecspressoで行うため、ここではクラスターのみ定義
 resource "aws_ecs_cluster" "cluster" {
-  name     = var.ecs_cluster_vars.ecs_cluster_name
+  name = var.ecs_cluster_vars.ecs_cluster_name
   setting {
     name  = "containerInsights"
     value = "enabled"
