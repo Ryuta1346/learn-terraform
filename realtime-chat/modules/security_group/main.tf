@@ -12,26 +12,49 @@ resource "aws_security_group" "sg" {
 resource "aws_security_group_rule" "ingress" {
   for_each = { for idx, rule in var.sg_rules.ingress_rules : idx => rule }
 
-  type                     = "ingress"
-  from_port                = each.value.from_port
-  to_port                  = each.value.to_port
-  protocol                 = each.value.protocol
-  security_group_id        = aws_security_group.sg.id
-  source_security_group_id = lookup(each.value, "source_security_group_id", null)
-  cidr_blocks              = contains(keys(each.value), "source_security_group_id") ? null : lookup(each.value, "cidr_blocks", [])
-  description              = each.value.description
-}
+  type              = "ingress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  security_group_id = aws_security_group.sg.id
+  description       = each.value.description
 
+  dynamic "source_security_group_id" {
+    for_each = contains(keys(each.value), "source_security_group_id") ? [each.value.source_security_group_id] : []
+    content {
+      source_security_group_id = source_security_group_id.value
+    }
+  }
+
+  dynamic "cidr_blocks" {
+    for_each = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? [each.value.cidr_blocks] : []
+    content {
+      cidr_blocks = cidr_blocks.value
+    }
+  }
+}
 
 resource "aws_security_group_rule" "egress" {
   for_each = { for idx, rule in var.sg_rules.egress_rules : idx => rule }
 
-  type                     = "egress"
-  from_port                = each.value.from_port
-  to_port                  = each.value.to_port
-  protocol                 = each.value.protocol
-  security_group_id        = aws_security_group.sg.id
-  source_security_group_id = lookup(each.value, "source_security_group_id", null)
-  cidr_blocks              = contains(keys(each.value), "source_security_group_id") ? null : lookup(each.value, "cidr_blocks", [])
-  description              = each.value.description
+  type              = "egress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  security_group_id = aws_security_group.sg.id
+  description       = each.value.description
+
+  dynamic "source_security_group_id" {
+    for_each = contains(keys(each.value), "source_security_group_id") ? [each.value.source_security_group_id] : []
+    content {
+      source_security_group_id = source_security_group_id.value
+    }
+  }
+
+  dynamic "cidr_blocks" {
+    for_each = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? [each.value.cidr_blocks] : []
+    content {
+      cidr_blocks = cidr_blocks.value
+    }
+  }
 }
