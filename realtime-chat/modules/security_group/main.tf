@@ -19,19 +19,8 @@ resource "aws_security_group_rule" "ingress" {
   security_group_id = aws_security_group.sg.id
   description       = each.value.description
 
-  dynamic "source_security_group_id" {
-    for_each = contains(keys(each.value), "source_security_group_id") ? [each.value.source_security_group_id] : []
-    content {
-      source_security_group_id = source_security_group_id.value
-    }
-  }
-
-  dynamic "cidr_blocks" {
-    for_each = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? [each.value.cidr_blocks] : []
-    content {
-      cidr_blocks = cidr_blocks.value
-    }
-  }
+  source_security_group_id = contains(keys(each.value), "source_security_group_id") ? each.value.source_security_group_id : null
+  cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : []
 }
 
 resource "aws_security_group_rule" "egress" {
@@ -44,17 +33,6 @@ resource "aws_security_group_rule" "egress" {
   security_group_id = aws_security_group.sg.id
   description       = each.value.description
 
-  dynamic "source_security_group_id" {
-    for_each = contains(keys(each.value), "source_security_group_id") ? [each.value.source_security_group_id] : []
-    content {
-      source_security_group_id = source_security_group_id.value
-    }
-  }
-
-  dynamic "cidr_blocks" {
-    for_each = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? [each.value.cidr_blocks] : []
-    content {
-      cidr_blocks = cidr_blocks.value
-    }
-  }
+  source_security_group_id = contains(keys(each.value), "source_security_group_id") ? each.value.source_security_group_id : null
+  cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : []
 }
