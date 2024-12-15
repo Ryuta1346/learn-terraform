@@ -1,14 +1,14 @@
 variable "net_nums" {
   description = "The number of subnets to create"
-  type        = object({
-    public_1 = number
-    public_2 = number
+  type = object({
+    public_1  = number
+    public_2  = number
     private_1 = number
   })
-  sensitive   = false
+  sensitive = false
   default = {
-    public_1 = 3
-    public_2 = 4
+    public_1  = 3
+    public_2  = 4
     private_1 = 5
   }
 }

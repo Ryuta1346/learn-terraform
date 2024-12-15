@@ -16,7 +16,6 @@ module "internet_gateway" {
   project_name = var.project_name
 }
 
-
 module "visitor_chat" {
   source              = "../../services/visitor"
   vpc_id              = module.vpc.vpc_id
