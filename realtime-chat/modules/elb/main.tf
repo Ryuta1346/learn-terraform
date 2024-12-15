@@ -3,7 +3,7 @@ resource "aws_lb" "elb" {
   name                       = "${var.project_name}-${var.environment}-${each.value.elb_name}"
   internal                   = each.value.internal
   load_balancer_type         = each.value.load_balancer_type
-  security_groups            = each.value.security_groups
+  security_groups            = each.value.security_group_ids
   subnets                    = each.value.subnet_ids
   enable_deletion_protection = each.value.enable_deletion_protection
   timeouts {
