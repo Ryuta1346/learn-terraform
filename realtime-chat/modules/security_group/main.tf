@@ -12,12 +12,12 @@ resource "aws_security_group" "sg" {
 resource "aws_security_group_rule" "ingress" {
   for_each = { for idx, rule in var.sg_rules.ingress_rules : idx => rule }
 
-  type              = "ingress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  security_group_id = aws_security_group.sg.id
-  description       = each.value.description
+  type                     = "ingress"
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  security_group_id        = aws_security_group.sg.id
+  description              = each.value.description
   source_security_group_id = each.value.source_security_group_id
   cidr_blocks              = each.value.cidr_blocks
 }
@@ -25,12 +25,12 @@ resource "aws_security_group_rule" "ingress" {
 resource "aws_security_group_rule" "egress" {
   for_each = { for idx, rule in var.sg_rules.egress_rules : idx => rule }
 
-  type              = "egress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
-  security_group_id = aws_security_group.sg.id
-  description       = each.value.description
+  type                     = "egress"
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  security_group_id        = aws_security_group.sg.id
+  description              = each.value.description
   source_security_group_id = each.value.source_security_group_id
   cidr_blocks              = each.value.cidr_blocks
 }
