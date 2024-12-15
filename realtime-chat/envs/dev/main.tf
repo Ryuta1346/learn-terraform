@@ -39,7 +39,7 @@ module "company_chat" {
 module "shared" {
   depends_on          = [module.visitor_chat]
   source              = "../../services/shared"
-  region              = "es-west-1"
+  region              = "us-west-1"
   vpc_id              = module.vpc.vpc_id
   vpc_cidr_block      = module.vpc.vpc_cidr_block
   internet_gateway_id = module.internet_gateway.internet_gateway_id
