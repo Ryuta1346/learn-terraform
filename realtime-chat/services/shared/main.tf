@@ -116,7 +116,7 @@ module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "${var.project_name}-${var.environment}-sqs-chat"
   vpc_id             = var.vpc_id
-  service_name       = "com.amazonaws.sqs"
+  service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
   security_group_ids = [module.private1_sg.sg_id]
   subnet_ids         = [module.private_subnet1.subnet_ids[0]]
@@ -160,7 +160,7 @@ module "sqs_notify_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "${var.project_name}-${var.environment}-sqs-notify"
   vpc_id             = var.vpc_id
-  service_name       = "com.amazonaws.sqs"
+  service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
   security_group_ids = [module.private1_sg.sg_id]
   subnet_ids         = [module.private_subnet1.subnet_ids[0]]
