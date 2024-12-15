@@ -157,7 +157,7 @@ module "visitor_chat_queue_policy" {
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
   queue_url = module.visitor_chat_queue.queue_id
-  policy    = module.visitor_chat_queue_policy.policy.json
+  policy    = module.visitor_chat_queue_policy.policy_json
 }
 
 
@@ -201,5 +201,5 @@ module "notification_queue_policy" {
 
 resource "aws_sqs_queue_policy" "notification_queue_policy" {
   queue_url = module.notification_queue.queue_id
-  policy    = module.notification_queue_policy.policy.json
+  policy    = module.notification_queue_policy.policy_json
 }
