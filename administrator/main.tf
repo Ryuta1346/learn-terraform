@@ -1,3 +1,7 @@
+// terraform state rm 'module.backup'でterraform管理から除外
+# module "backup" {
+#   source = "./common"
+# }
 data "aws_ssm_parameter" "aws_account_id" {
   name = "/terraform/aws/account-id"
 }
