@@ -16,9 +16,9 @@ resource "aws_security_group_rule" "ingress" {
   from_port                = each.value.from_port
   to_port                  = each.value.to_port
   protocol                 = each.value.protocol
-  cidr_blocks              = lookup(each.value, "cidr_blocks", [])
   security_group_id        = aws_security_group.sg.id
   source_security_group_id = lookup(each.value, "source_security_group_id", null)
+  cidr_blocks              = contains(keys(each.value), "source_security_group_id") ? null : lookup(each.value, "cidr_blocks", [])
   description              = each.value.description
 }
 
@@ -30,8 +30,8 @@ resource "aws_security_group_rule" "egress" {
   from_port                = each.value.from_port
   to_port                  = each.value.to_port
   protocol                 = each.value.protocol
-  cidr_blocks              = lookup(each.value, "cidr_blocks", [])
   security_group_id        = aws_security_group.sg.id
   source_security_group_id = lookup(each.value, "source_security_group_id", null)
+  cidr_blocks              = contains(keys(each.value), "source_security_group_id") ? null : lookup(each.value, "cidr_blocks", [])
   description              = each.value.description
 }

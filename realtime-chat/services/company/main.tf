@@ -26,6 +26,14 @@ module "public_subnet" {
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 0)
       map_public_ip_on_launch = true
       is_private              = false
+    },
+    {
+      id                      = "${var.project_name}-${var.environment}-company-public-2"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[1]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 1)
+      map_public_ip_on_launch = true
+      is_private              = false
     }
   ]
   environment  = var.environment

@@ -24,6 +24,14 @@ module "public_subnet" {
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 0)
       map_public_ip_on_launch = true
       is_private              = false
+    },
+    {
+      id                      = "${var.project_name}-${var.environment}-visitor-public-2"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[1]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, 2)
+      map_public_ip_on_launch = true
+      is_private              = false
     }
   ]
   environment  = var.environment
@@ -94,7 +102,7 @@ module "elb" {
       subnet_ids                 = module.public_subnet.subnet_ids
       enable_deletion_protection = false
       access_logs_enabled        = false
-    }
+    },
   ]
   environment  = var.environment
   project_name = var.project_name
