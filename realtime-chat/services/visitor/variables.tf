@@ -10,6 +10,12 @@ variable "vpc_cidr_block" {
   sensitive   = false
 }
 
+variable "internet_gateway_id" {
+  description = "The ID of the internet gateway"
+  type        = string
+  sensitive   = false
+}
+
 variable "environment" {
   description = "The environment for the company chat service"
   type        = string

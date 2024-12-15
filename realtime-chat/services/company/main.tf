@@ -1,14 +1,4 @@
-module "internet_gateway" {
-  source       = "../../modules/internet_gateway/"
-  vpc_id       = var.vpc_id
-  environment  = var.environment
-  project_name = var.project_name
-}
-
-
-
 module "public_subnet" {
-  depends_on = [module.internet_gateway]
   source     = "../../modules/subnet"
   subnet_vars = [
     {
@@ -33,7 +23,6 @@ module "public_subnet" {
 }
 
 module "public_route_table" {
-  depends_on   = [module.internet_gateway]
   source       = "../../modules/route_table"
   vpc_id       = var.vpc_id
   subnet_ids   = module.public_subnet.subnet_ids
@@ -42,7 +31,7 @@ module "public_route_table" {
   routes = [
     {
       cidr_block = "0.0.0.0/0",
-      gateway_id = module.internet_gateway.internet_gateway_id
+      gateway_id = var.internet_gateway_id
     }
   ]
 }
@@ -118,7 +107,6 @@ module "private_subnet" {
 }
 
 module "private_route_table" {
-  depends_on   = [module.internet_gateway]
   source       = "../../modules/route_table"
   subnet_ids   = module.private_subnet.subnet_ids
   vpc_id       = var.vpc_id

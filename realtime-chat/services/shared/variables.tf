@@ -10,6 +10,12 @@ variable "vpc_cidr_block" {
   sensitive   = false
 }
 
+variable "internet_gateway_id" {
+  description = "The ID of the internet gateway"
+  type        = string
+  sensitive   = false
+}
+
 variable "availability_zones" {
   description = "The availability zones for the service"
   type        = list(string)
