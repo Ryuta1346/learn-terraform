@@ -18,6 +18,6 @@ resource "aws_ecs_cluster_capacity_providers" "cluster_capacity_provider" {
   default_capacity_provider_strategy {
     base              = var.ecs_cluster_vars.default_base_count
     weight            = var.ecs_cluster_vars.default_weight_count
-    capacity_provider = var.ecs_cluster_vars.capacity_provider ? var.ecs_cluster_vars.capacity_provider : var.ecs_cluster_vars.capacity_providers[0]
+    capacity_provider = coalesce(var.ecs_cluster_vars.capacity_provider, var.ecs_cluster_vars.capacity_providers[0])
   }
 }
