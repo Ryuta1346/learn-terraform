@@ -1,0 +1,82 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch: # 手動でのみ実行
+    inputs:
+      directory: # 実行したいディレクトリを指定
+        description: 'Terraform directory to target (e.g., envs/dev)'
+        required: true
+        default: 'envs/dev'
+      execute_destroy: # destroyの実行を選択する入力
+        description: 'Set to true to execute terraform destroy'
+        required: false
+        default: 'false'
+
+jobs:
+  terraform-plan:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: ${{ github.event.inputs.directory }}
+    steps:
+      # リポジトリをチェックアウト
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # リポジトリ内にディレクトリが存在するか確認
+      - name: Validate Directory Exists in Repository
+        run: |
+          echo "Checking if the directory exists within the repository: ${{ github.event.inputs.directory }}"
+          REPO_ROOT=$(git rev-parse --show-toplevel) # リポジトリのルートを取得
+          TARGET_DIR="$REPO_ROOT/${{ github.event.inputs.directory }}" # ターゲットディレクトリを構築
+
+          if [ ! -d "$TARGET_DIR" ]; then
+            echo "Error: The directory '${{ github.event.inputs.directory }}' does not exist in the repository."
+            echo "Checked path: $TARGET_DIR"
+            exit 1
+          else
+            echo "Success: The directory '${{ github.event.inputs.directory }}' exists in the repository."
+            echo "Verified path: $TARGET_DIR"
+          fi
+
+      # Terraformのセットアップ
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # AWS認証情報のセットアップ
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-1
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActions
+          role-duration-seconds: 3600
+
+      # Terraformコードのフォーマットチェック
+      - name: Terraform Format Check
+        run: terraform fmt -check
+        continue-on-error: false
+
+      # Terraformの初期化
+      - name: Terraform Init
+        run: terraform init
+
+      # Terraformバージョンの確認
+      - name: Check Terraform Version
+        run: terraform --version
+
+      # Terraform Planの実行
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan
+        continue-on-error: false
+
+      # Terraform Applyの実行 (条件付き)
+      - name: Terraform Apply
+        id: apply
+        if: ${{ github.event.inputs.execute_destroy == 'true' }} # destroyが選択された場合のみ実行
+        run: terraform destroy -auto-approve
