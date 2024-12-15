@@ -147,7 +147,7 @@ module "visitor_chat_queue_policy" {
   sid = "AllowVPCEndpointAccess"
   effect = "Allow"
   actions = ["sqs:SendMessage"]
-  resources = [module.visitor_chat_queue.arn]
+  resources = [module.visitor_chat_queue.queue_arn]
   condition_vars = {
     test = "ArnEquals"
     variable = "aws:SourceArn"
@@ -191,7 +191,7 @@ module "notification_queue_policy" {
   sid = "AllowVPCEndpointAccess"
   effect = "Allow"
   actions = ["sqs:SendMessage"]
-  resources = [module.notification_queue.arn]
+  resources = [module.notification_queue.queue_arn]
   condition_vars = {
     test = "ArnEquals"
     variable = "aws:SourceArn"
