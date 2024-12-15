@@ -131,7 +131,7 @@ module "sqs_chat_vpc_endpoint" {
 }
 
 module "visitor_chat_queue" {
-  source = "../../modules/sqs_queue"
+  source     = "../../modules/sqs_queue"
   queue_name = "${var.project_name}-${var.environment}-visitor-chat-queue.fifo"
   queue_options = {
     fifo_queue                = true
@@ -143,15 +143,15 @@ module "visitor_chat_queue" {
 }
 
 module "visitor_chat_queue_policy" {
-  source = "../../modules/iam_policy"
-  sid = "AllowVPCEndpointAccess"
-  effect = "Allow"
-  actions = ["sqs:SendMessage"]
+  source    = "../../modules/iam_policy"
+  sid       = "AllowVPCEndpointAccess"
+  effect    = "Allow"
+  actions   = ["sqs:SendMessage"]
   resources = [module.visitor_chat_queue.queue_arn]
   condition_vars = {
-    test = "ArnEquals"
+    test     = "ArnEquals"
     variable = "aws:SourceArn"
-    values = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
+    values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
   }
 }
 
@@ -175,7 +175,7 @@ module "sqs_notify_vpc_endpoint" {
 }
 
 module "notification_queue" {
-  source = "../../modules/sqs_queue"
+  source     = "../../modules/sqs_queue"
   queue_name = "${var.project_name}-${var.environment}-notification-queue.fifo"
   queue_options = {
     fifo_queue                = true
@@ -187,15 +187,15 @@ module "notification_queue" {
 }
 
 module "notification_queue_policy" {
-  source = "../../modules/iam_policy"
-  sid = "AllowVPCEndpointAccess"
-  effect = "Allow"
-  actions = ["sqs:SendMessage"]
+  source    = "../../modules/iam_policy"
+  sid       = "AllowVPCEndpointAccess"
+  effect    = "Allow"
+  actions   = ["sqs:SendMessage"]
   resources = [module.notification_queue.queue_arn]
   condition_vars = {
-    test = "ArnEquals"
+    test     = "ArnEquals"
     variable = "aws:SourceArn"
-    values = [module.sqs_notify_vpc_endpoint.vpc_endpoint_arn]
+    values   = [module.sqs_notify_vpc_endpoint.vpc_endpoint_arn]
   }
 }
 

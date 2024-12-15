@@ -22,7 +22,7 @@ variable "sg_rules" {
       protocol                 = string
       description              = optional(string)
       source_security_group_id = optional(string)
-      cidr_blocks              = optional(list(string), [])
+      cidr_blocks              = optional(list(string), null)
     }))
     egress_rules = list(object({
       from_port                = number
@@ -30,7 +30,7 @@ variable "sg_rules" {
       protocol                 = string
       description              = optional(string)
       source_security_group_id = optional(string)
-      cidr_blocks              = optional(list(string), [])
+      cidr_blocks              = optional(list(string), null)
     }))
   })
   validation {

@@ -18,6 +18,8 @@ resource "aws_security_group_rule" "ingress" {
   protocol          = each.value.protocol
   security_group_id = aws_security_group.sg.id
   description       = each.value.description
+  # source_security_group_id = each.value.source_security_group_id
+  # cidr_blocks              = each.value.cidr_blocks
 
   source_security_group_id = contains(keys(each.value), "source_security_group_id") ? each.value.source_security_group_id : null
   cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : null
@@ -32,6 +34,8 @@ resource "aws_security_group_rule" "egress" {
   protocol          = each.value.protocol
   security_group_id = aws_security_group.sg.id
   description       = each.value.description
+  # source_security_group_id = each.value.source_security_group_id
+  # cidr_blocks              = each.value.cidr_blocks
 
   source_security_group_id = contains(keys(each.value), "source_security_group_id") ? each.value.source_security_group_id : null
   cidr_blocks              = contains(keys(each.value), "cidr_blocks") && !contains(keys(each.value), "source_security_group_id") ? each.value.cidr_blocks : null
