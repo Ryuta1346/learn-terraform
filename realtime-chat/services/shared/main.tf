@@ -18,6 +18,7 @@ module "vpc" {
   project_name   = var.project_name
   environment    = var.environment
   vpc_cidr_block = var.vpc_cidr_block
+  vpc_name = "shared-${var.project_name}-${var.environment}"
 }
 
 module "internet_gateway" {
@@ -26,6 +27,7 @@ module "internet_gateway" {
   vpc_id       = module.vpc.vpc_id
   environment  = var.environment
   project_name = var.project_name
+  gateway_name = "shared-${var.project_name}-${var.environment}-igw"
 }
 
 module "public_subnet" {
@@ -64,6 +66,7 @@ module "public_nat_gateway" {
   subnet_id    = module.public_subnet.subnet_ids[0]
   environment  = var.environment
   project_name = var.project_name
+  nat_gateway_name = "shared-${var.project_name}-${var.environment}-nat-gateway"
 }
 
 ## VPCエンドポイント用PrivateSubnet

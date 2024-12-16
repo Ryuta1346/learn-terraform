@@ -15,3 +15,9 @@ variable "project_name" {
   type        = string
   sensitive   = false
 }
+
+variable "nat_gateway_name" {
+  description = "The name of the NAT gateway"
+  type        = string
+  sensitive   = false
+}

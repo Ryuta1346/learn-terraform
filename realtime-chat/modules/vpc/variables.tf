@@ -4,6 +4,13 @@ variable "vpc_cidr_block" {
   sensitive   = false
 }
 
+variable "vpc_name" {
+  description = "The name of the VPC"
+  type        = string
+  sensitive   = false
+  
+}
+
 variable "environment" {
   description = "The environment for the VPC"
   type        = string
