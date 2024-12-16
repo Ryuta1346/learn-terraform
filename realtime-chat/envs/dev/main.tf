@@ -4,11 +4,17 @@ module "aws_resources" {
   project_name = var.project_name
 }
 module "visitor_chat" {
-  depends_on         = [module.aws_resources]
-  source             = "../../services/visitor"
-  vpc_cidr_block     = var.company_vpc_cidr_block
-  chat_queue         = module.aws_resources.chat_queue
-  notification_queue = module.aws_resources.notification_queue
+  depends_on     = [module.aws_resources]
+  source         = "../../services/visitor"
+  vpc_cidr_block = var.company_vpc_cidr_block
+  chat_queue = {
+    id  = module.aws_resources.chat_queue.id
+    arn = module.aws_resources.chat_queue.arn
+  }
+  notification_queue = {
+    id  = module.aws_resources.notification_queue.id
+    arn = module.aws_resources.notification_queue.arn
+  }
   availability_zones = var.availability_zones
   environment        = var.environment
   project_name       = var.project_name
@@ -19,10 +25,16 @@ module "company_chat" {
   source             = "../../services/company"
   vpc_cidr_block     = var.visitor_vpc_cidr_block
   availability_zones = var.availability_zones
-  chat_queue         = module.aws_resources.chat_queue
-  notification_queue = module.aws_resources.notification_queue
-  environment        = var.environment
-  project_name       = var.project_name
+  chat_queue = {
+    id  = module.aws_resources.chat_queue.id
+    arn = module.aws_resources.chat_queue.arn
+  }
+  notification_queue = {
+    id  = module.aws_resources.notification_queue.id
+    arn = module.aws_resources.notification_queue.arn
+  }
+  environment  = var.environment
+  project_name = var.project_name
 }
 
 module "shared" {
@@ -33,6 +45,12 @@ module "shared" {
   availability_zones = var.availability_zones
   environment        = var.environment
   project_name       = var.project_name
-  chat_queue         = module.aws_resources.chat_queue
-  notification_queue = module.aws_resources.notification_queue
+  chat_queue = {
+    id  = module.aws_resources.chat_queue.id
+    arn = module.aws_resources.chat_queue.arn
+  }
+  notification_queue = {
+    id  = module.aws_resources.notification_queue.id
+    arn = module.aws_resources.notification_queue.arn
+  }
 }
