@@ -228,7 +228,7 @@ module "private_vpc_endpoint_route_table" {
 
 module "private_vpc_endpoint_sg" {
   source              = "../../modules/security_group"
-  security_group_name = "visitor-chat-private"
+  security_group_name = "visitor-chat-vpc-endpoint-private"
   description         = "Security group for the private subnet of visitor chat vpc endpoint"
   vpc_id              = module.vpc.vpc_id
   sg_rules = {
