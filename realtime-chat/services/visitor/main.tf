@@ -256,7 +256,7 @@ module "private_vpc_endpoint_sg" {
 }
 
 ## チャット永続化
-module "sqs_chat_vpc_endpoint" {
+module "sqs_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "visitor-${var.project_name}-${var.environment}-sqs-chat"
   vpc_id             = module.vpc.vpc_id
@@ -282,24 +282,12 @@ module "visitor_chat_queue_policy" {
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
-  depends_on = [module.sqs_chat_vpc_endpoint]
+  depends_on = [module.sqs_vpc_endpoint]
   queue_url  = var.chat_queue.id
   policy     = module.visitor_chat_queue_policy.policy_json
 }
 
 ## 外部通知
-module "sqs_notify_vpc_endpoint" {
-  source             = "../../modules/vpc_endpoint"
-  name               = "visitor-${var.project_name}-${var.environment}-notify-sqs"
-  vpc_id             = module.vpc.vpc_id
-  service_name       = "com.amazonaws.us-east-1.sqs"
-  endpoint_type      = "Interface"
-  security_group_ids = [module.private_vpc_endpoint_sg.sg_id]
-  subnet_ids         = [module.private_subnet_for_vpc_endpoint.subnet_ids[0]]
-  environment        = var.environment
-  project_name       = var.project_name
-}
-
 module "visitor_notify_queue_policy" {
   source    = "../../modules/iam_policy"
   sid       = "AllowVPCEndpointAccess"
@@ -314,7 +302,7 @@ module "visitor_notify_queue_policy" {
 }
 
 resource "aws_sqs_queue_policy" "visitor_notify_queue_policy" {
-  depends_on = [module.sqs_notify_vpc_endpoint]
+  depends_on = [module.sqs_vpc_endpoint]
   queue_url  = var.notification_queue.id
   policy     = module.visitor_notify_queue_policy.policy_json
 }
