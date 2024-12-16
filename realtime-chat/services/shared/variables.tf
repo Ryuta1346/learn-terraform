@@ -40,8 +40,14 @@ variable "region" {
   sensitive   = false
 
 }
-variable "visitor_chat_sg_id" {
-  description = "The security group ID for the Visitor Chat service"
+# variable "visitor_chat_sg_id" {
+#   description = "The security group ID for the Visitor Chat service"
+#   type        = string
+#   sensitive   = false
+# }
+
+variable "visitor_chat_queue_id" {
+  description = "The ARN of the visitor chat queue"
   type        = string
   sensitive   = false
 }

@@ -6,8 +6,9 @@ variable "net_nums" {
   })
   sensitive = false
   default = {
-    public_1  = 6
-    private_1 = 7
+    public_1  = 0
+    private_1 = 1
+    private_2 = 2
   }
 }
 
@@ -65,7 +66,7 @@ module "public_nat_gateway" {
 }
 
 ## VPCエンドポイント用PrivateSubnet
-module "private_subnet1" {
+module "private_vpc_endpoint_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [
     {
@@ -84,7 +85,7 @@ module "private_subnet1" {
 module "private_route_table" {
   source       = "../../modules/route_table"
   vpc_id       = module.vpc.vpc_id
-  subnet_ids   = module.private_subnet1.subnet_ids
+  subnet_ids   = module.private__vpc_endpoint_subnet.subnet_ids
   environment  = var.environment
   project_name = var.project_name
   routes = [
@@ -95,25 +96,23 @@ module "private_route_table" {
   ]
 }
 
-
-
-module "private1_sg" {
+module "private_chat_vpc_endpoint_sg" {
   source              = "../../modules/security_group"
   vpc_id              = module.vpc.vpc_id
-  security_group_name = "private1"
-  description         = "Security group for the private subnet no1"
+  security_group_name = "shared-private-chat-vpc-endpoint-sg"
+  description         = "Security group for the private subnet of shared chat vpc endpoint"
   sg_rules = {
     ingress_rules = [{
       from_port                = 80
       to_port                  = 80
       protocol                 = "tcp"
-      source_security_group_id = var.visitor_chat_sg_id
+      source_security_group_id = module.private_ecs_chat_sg.sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = var.visitor_chat_sg_id
+        source_security_group_id = module.private_ecs_chat_sg.sg_id
     }],
     egress_rules = [{
       from_port   = 0
@@ -129,33 +128,21 @@ module "private1_sg" {
 ## VPCエンドポイント用PrivateSubnet:チャット永続処理用
 module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  name               = "${var.project_name}-${var.environment}-sqs-chat"
+  name               = "shared-${var.project_name}-${var.environment}-chat-sqs"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
-  security_group_ids = [module.private1_sg.sg_id]
-  subnet_ids         = [module.private_subnet1.subnet_ids[0]]
+  security_group_ids = [module.private_chat_vpc_endpoint_sg.sg_id]
+  subnet_ids         = [module.private_vpc_endpoint_subnet.subnet_ids[0]]
   environment        = var.environment
   project_name       = var.project_name
-}
-
-module "visitor_chat_queue" {
-  source     = "../../modules/sqs_queue"
-  queue_name = "${var.project_name}-${var.environment}-visitor-chat-queue.fifo"
-  queue_options = {
-    fifo_queue                = true
-    delay_seconds             = 0
-    receive_wait_time_seconds = 0
-  }
-  environment  = var.environment
-  project_name = var.project_name
 }
 
 module "visitor_chat_queue_policy" {
   source    = "../../modules/iam_policy"
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
-  actions   = ["sqs:SendMessage"]
+  actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
   resources = [module.visitor_chat_queue.queue_arn]
   condition_vars = {
     test     = "ArnEquals"
@@ -165,23 +152,53 @@ module "visitor_chat_queue_policy" {
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
-  queue_url = module.visitor_chat_queue.queue_id
+  queue_url = var.visitor_chat_queue_id
   policy    = module.visitor_chat_queue_policy.policy_json
 }
 
+module "private_notify_vpc_endpoint_sg" {
+  source              = "../../modules/security_group"
+  vpc_id              = module.vpc.vpc_id
+  security_group_name = "shared-private-notify-vpc-endpoint-sg"
+  description         = "Security group for the private subnet of shared notify vpc endpoint"
+  sg_rules = {
+    ingress_rules = [{
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      source_security_group_id = module.private_ecs_chat_sg.sg_id
+      },
+      {
+        from_port                = 443
+        to_port                  = 443
+        protocol                 = "tcp"
+        source_security_group_id = module.private_ecs_chat_sg.sg_id
+    }],
+    egress_rules = [{
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }]
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
 
 ## VPCエンドポイント用PrivateSubnet:外部通知用
 module "sqs_notify_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  name               = "${var.project_name}-${var.environment}-sqs-notify"
+  name               = "shared-${var.project_name}-${var.environment}-notify-sqs"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
-  security_group_ids = [module.private1_sg.sg_id]
-  subnet_ids         = [module.private_subnet1.subnet_ids[0]]
+  security_group_ids = [module.private_notify_vpc_endpoint_sg.sg_id]
+  subnet_ids         = [module.private_vpc_endpoint_subnet.subnet_ids[0]]
   environment        = var.environment
   project_name       = var.project_name
 }
+
+
 
 module "notification_queue" {
   source     = "../../modules/sqs_queue"
@@ -199,7 +216,7 @@ module "notification_queue_policy" {
   source    = "../../modules/iam_policy"
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
-  actions   = ["sqs:SendMessage"]
+  actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
   resources = [module.notification_queue.queue_arn]
   condition_vars = {
     test     = "ArnEquals"
@@ -211,4 +228,65 @@ module "notification_queue_policy" {
 resource "aws_sqs_queue_policy" "notification_queue_policy" {
   queue_url = module.notification_queue.queue_id
   policy    = module.notification_queue_policy.policy_json
+}
+
+
+## チャット永続化処理用ECS
+module "private_ecs_chat_subnet" {
+  source = "../../modules/subnet"
+  subnet_vars = [
+    {
+      id                      = "${var.project_name}-${var.environment}-private-ecs-chat-1"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[0]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.private_2)
+      map_public_ip_on_launch = false
+      is_private              = true
+    }
+  ]
+  environment  = var.environment
+  project_name = var.project_name
+}
+
+module "private_ecs_chat_sg" {
+  source              = "../../modules/security_group"
+  vpc_id              = module.vpc.vpc_id
+  security_group_name = "private1"
+  description         = "Security group for the Chat private subnet"
+  sg_rules = {
+    ingress_rules = [{
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      source_security_group_id = module.private_chat_vpc_endpoint_sg.sg_id
+      },
+      {
+        from_port                = 443
+        to_port                  = 443
+        protocol                 = "tcp"
+        source_security_group_id = module.private_chat_vpc_endpoint_sg.sg_id
+    }],
+    egress_rules = [{
+      from_port                = 0
+      to_port                  = 0
+      protocol                 = "-1"
+      source_security_group_id = module.private_chat_vpc_endpoint_sg.sg_id
+    }]
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
+
+module "private_route_table" {
+  source       = "../../modules/route_table"
+  vpc_id       = module.vpc.vpc_id
+  subnet_ids   = module.private_ecs_chat_subnet.subnet_ids
+  environment  = var.environment
+  project_name = var.project_name
+  routes = [
+    {
+      cidr_block = var.vpc_cidr_block,
+      gateway_id = "local"
+    }
+  ]
 }

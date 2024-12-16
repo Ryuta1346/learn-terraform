@@ -10,6 +10,7 @@ variable "net_nums" {
     public_1  = 0
     public_2  = 1
     private_1 = 2
+    private_2 = 3
   }
 }
 
@@ -120,7 +121,7 @@ module "elb" {
   project_name = var.project_name
 }
 
-module "private_subnet" {
+module "private_subnet_ecs" {
   source = "../../modules/subnet"
   subnet_vars = [
     {
@@ -138,7 +139,7 @@ module "private_subnet" {
 
 module "private_route_table" {
   source       = "../../modules/route_table"
-  subnet_ids   = module.private_subnet.subnet_ids
+  subnet_ids   = module.private_subnet_ecs.subnet_ids
   vpc_id       = module.vpc.vpc_id
   environment  = var.environment
   project_name = var.project_name
@@ -150,7 +151,7 @@ module "private_route_table" {
   ]
 }
 
-module "private_sg" {
+module "private_ecs_sg" {
   source              = "../../modules/security_group"
   security_group_name = "company-chat-private"
   description         = "Security group for the private subnet"
@@ -189,4 +190,145 @@ module "ecs" {
   }
   environment  = var.environment
   project_name = var.project_name
+}
+
+
+module "private_subnet_for_vpc_endpoint" {
+  source = "../../modules/subnet"
+  subnet_vars = [
+    {
+      id                      = "${var.project_name}-${var.environment}-company-private-2"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[0]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, var.net_nums.private_2)
+      map_public_ip_on_launch = false
+      is_private              = true
+    }
+  ]
+  environment  = var.environment
+  project_name = var.project_name
+}
+
+module "private_vpc_endpoint_route_table" {
+  source       = "../../modules/route_table"
+  subnet_ids   = module.private_subnet_for_vpc_endpoint.subnet_ids
+  vpc_id       = module.vpc.vpc_id
+  environment  = var.environment
+  project_name = var.project_name
+  routes = [
+    {
+      cidr_block = var.vpc_cidr_block,
+      gateway_id = "local"
+    }
+  ]
+}
+
+module "private_vpc_endpoint_sg" {
+  source              = "../../modules/security_group"
+  security_group_name = "company-chat-private"
+  description         = "Security group for the private subnet"
+  vpc_id              = module.vpc.vpc_id
+  sg_rules = {
+    ingress_rules = [{
+      from_port                = 80
+      to_port                  = 80
+      protocol                 = "tcp"
+      source_security_group_id = module.private_ecs_sg.sg_id
+      },
+      {
+        from_port                = 443
+        to_port                  = 443
+        protocol                 = "tcp"
+        source_security_group_id = module.private_ecs_sg.sg_id
+    }],
+    egress_rules = [{
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }]
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
+
+## VPCエンドポイント用PrivateSubnet:チャット永続化用
+module "sqs_chat_vpc_endpoint" {
+  source             = "../../modules/vpc_endpoint"
+  name               = "company-${var.project_name}-${var.environment}-sqs-chat"
+  vpc_id             = module.vpc.vpc_id
+  service_name       = "com.amazonaws.us-east-1.sqs"
+  endpoint_type      = "Interface"
+  security_group_ids = [module.private_vpc_endpoint_sg.sg_id]
+  subnet_ids         = [module.private_subnet_for_vpc_endpoint.subnet_ids[0]]
+  environment        = var.environment
+  project_name       = var.project_name
+}
+
+module "visitor_chat_queue" {
+  source     = "../../modules/sqs_queue"
+  queue_name = "${var.project_name}-${var.environment}-visitor-chat-queue.fifo"
+  queue_options = {
+    fifo_queue                = true
+    delay_seconds             = 0
+    receive_wait_time_seconds = 0
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
+
+module "visitor_chat_queue_policy" {
+  source    = "../../modules/iam_policy"
+  sid       = "AllowVPCEndpointAccess"
+  effect    = "Allow"
+  actions   = ["sqs:SendMessage"]
+  resources = [module.visitor_chat_queue.queue_arn]
+  condition_vars = {
+    test     = "ArnEquals"
+    variable = "aws:SourceArn"
+    values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
+  }
+}
+
+resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
+  queue_url = module.visitor_chat_queue.queue_id
+  policy    = module.visitor_chat_queue_policy.policy_json
+}
+
+## VPCエンドポイント用PrivateSubnet:外部通知用
+module "sqs_notify_vpc_endpoint" {
+  source             = "../../modules/vpc_endpoint"
+  name               = "company-${var.project_name}-${var.environment}-sqs-notify"
+  vpc_id             = module.vpc.vpc_id
+  service_name       = "com.amazonaws.us-east-1.sqs"
+  endpoint_type      = "Interface"
+  security_group_ids = [module.private_vpc_endpoint_sg.sg_id]
+  subnet_ids         = [module.private_vpc_endpoint_subnet.subnet_ids[0]]
+  environment        = var.environment
+  project_name       = var.project_name
+}
+
+module "notification_queue" {
+  source     = "../../modules/sqs_queue"
+  queue_name = "${var.project_name}-${var.environment}-notification-queue.fifo"
+  queue_options = {
+    fifo_queue                = true
+    delay_seconds             = 0
+    receive_wait_time_seconds = 0
+  }
+  environment  = var.environment
+  project_name = var.project_name
+}
+
+module "notification_queue_policy" {
+  source    = "../../modules/iam_policy"
+  sid       = "AllowVPCEndpointAccess"
+  effect    = "Allow"
+  actions   = ["sqs:SendMessage"]
+  resources = [module.notification_queue.queue_arn]
+  condition_vars = {
+    test     = "ArnEquals"
+    variable = "aws:SourceArn"
+    values   = [module.sqs_notify_vpc_endpoint.vpc_endpoint_arn]
+  }
 }
