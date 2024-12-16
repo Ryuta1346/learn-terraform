@@ -127,9 +127,9 @@ module "private_chat_vpc_endpoint_sg" {
 }
 
 ## VPCエンドポイント用PrivateSubnet:チャット永続処理用
-module "sqs_chat_vpc_endpoint" {
+module "sqs_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  name               = "shared-${var.project_name}-${var.environment}-chat-sqs"
+  name               = "shared-${var.project_name}-${var.environment}-sqs"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
@@ -187,18 +187,6 @@ module "private_notify_vpc_endpoint_sg" {
 }
 
 ## VPCエンドポイント用PrivateSubnet:外部通知用
-module "sqs_notify_vpc_endpoint" {
-  source             = "../../modules/vpc_endpoint"
-  name               = "shared-${var.project_name}-${var.environment}-notify-sqs"
-  vpc_id             = module.vpc.vpc_id
-  service_name       = "com.amazonaws.us-east-1.sqs"
-  endpoint_type      = "Interface"
-  security_group_ids = [module.private_notify_vpc_endpoint_sg.sg_id]
-  subnet_ids         = [module.private_vpc_endpoint_subnet.subnet_ids[0]]
-  environment        = var.environment
-  project_name       = var.project_name
-}
-
 module "notification_queue_policy" {
   source    = "../../modules/iam_policy"
   sid       = "AllowVPCEndpointAccess"
