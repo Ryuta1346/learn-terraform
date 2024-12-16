@@ -4,12 +4,14 @@ variable "net_nums" {
     public_1  = number
     public_2  = number
     private_1 = number
+    private_2 = number
   })
   sensitive = false
   default = {
     public_1  = 0
     public_2  = 1
     private_1 = 2
+    private_2 = 3
   }
 }
 
