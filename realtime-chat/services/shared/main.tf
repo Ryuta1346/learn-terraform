@@ -86,7 +86,7 @@ module "private_vpc_endpoint_subnet" {
 module "private_route_table" {
   source       = "../../modules/route_table"
   vpc_id       = module.vpc.vpc_id
-  subnet_ids   = module.private__vpc_endpoint_subnet.subnet_ids
+  subnet_ids   = module.private_vpc_endpoint_subnet.subnet_ids
   environment  = var.environment
   project_name = var.project_name
   routes = [
@@ -144,7 +144,7 @@ module "visitor_chat_queue_policy" {
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
   actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
-  resources = [module.chat_queue.queue_arn]
+  resources = [var.chat_queue.arn]
   condition_vars = {
     test     = "ArnEquals"
     variable = "aws:SourceArn"
@@ -204,7 +204,7 @@ module "notification_queue_policy" {
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
   actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
-  resources = [module.notification_queue.queue_arn]
+  resources = [var.notification_queue.arn]
   condition_vars = {
     test     = "ArnEquals"
     variable = "aws:SourceArn"
