@@ -3,6 +3,7 @@ variable "net_nums" {
   type = object({
     public_1  = number
     private_1 = number
+    private_2 = number
   })
   sensitive = false
   default = {

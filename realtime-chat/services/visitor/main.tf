@@ -7,9 +7,9 @@ variable "net_nums" {
   })
   sensitive = false
   default = {
-    public_1  = 3
-    public_2  = 4
-    private_1 = 5
+    public_1  = 0
+    public_2  = 1
+    private_1 = 2
   }
 }
 
