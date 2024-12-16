@@ -18,7 +18,7 @@ module "vpc" {
   project_name   = var.project_name
   environment    = var.environment
   vpc_cidr_block = var.vpc_cidr_block
-  vpc_name = "shared-${var.project_name}-${var.environment}"
+  vpc_name       = "shared-${var.project_name}-${var.environment}"
 }
 
 module "internet_gateway" {
@@ -62,10 +62,10 @@ module "public_route_table" {
 }
 
 module "public_nat_gateway" {
-  source       = "../../modules/nat_gateway"
-  subnet_id    = module.public_subnet.subnet_ids[0]
-  environment  = var.environment
-  project_name = var.project_name
+  source           = "../../modules/nat_gateway"
+  subnet_id        = module.public_subnet.subnet_ids[0]
+  environment      = var.environment
+  project_name     = var.project_name
   nat_gateway_name = "shared-${var.project_name}-${var.environment}-nat-gateway"
 }
 

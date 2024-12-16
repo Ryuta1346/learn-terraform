@@ -20,7 +20,7 @@ module "vpc" {
   project_name   = var.project_name
   environment    = var.environment
   vpc_cidr_block = var.vpc_cidr_block
-  vpc_name = "company-${var.project_name}-${var.environment}"
+  vpc_name       = "company-${var.project_name}-${var.environment}"
 }
 
 module "internet_gateway" {

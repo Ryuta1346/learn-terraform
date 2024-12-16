@@ -8,7 +8,7 @@ variable "vpc_name" {
   description = "The name of the VPC"
   type        = string
   sensitive   = false
-  
+
 }
 
 variable "environment" {
