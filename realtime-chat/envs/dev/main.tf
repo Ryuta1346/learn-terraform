@@ -1,15 +1,26 @@
+module "aws_resources" {
+  source       = "../../services/aws_resources"
+  environment  = var.environment
+  project_name = var.project_name
+}
 module "visitor_chat" {
+  depends_on         = [module.aws_resources]
   source             = "../../services/visitor"
   vpc_cidr_block     = var.company_vpc_cidr_block
+  chat_queue         = module.aws_resources.chat_queue
+  notification_queue = module.aws_resources.notification_queue
   availability_zones = var.availability_zones
   environment        = var.environment
   project_name       = var.project_name
 }
 
 module "company_chat" {
+  depends_on         = [module.aws_resources]
   source             = "../../services/company"
   vpc_cidr_block     = var.visitor_vpc_cidr_block
   availability_zones = var.availability_zones
+  chat_queue         = module.aws_resources.chat_queue
+  notification_queue = module.aws_resources.notification_queue
   environment        = var.environment
   project_name       = var.project_name
 }
@@ -22,6 +33,6 @@ module "shared" {
   availability_zones = var.availability_zones
   environment        = var.environment
   project_name       = var.project_name
-  visitor_chat_queue = module.visitor_chat.visitor_chat_queue
-  notification_queue = module.company_chat.notification_queue
+  chat_queue         = module.aws_resources.chat_queue
+  notification_queue = module.aws_resources.notification_queue
 }

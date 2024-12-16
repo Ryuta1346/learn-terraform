@@ -4,7 +4,7 @@ output "chat_queue" {
 }
 
 
-output "visitor_notification_queue" {
+output "notification_queue" {
   description = "The ARN of the visitor notification queue"
   value       = module.notification_queue
 }

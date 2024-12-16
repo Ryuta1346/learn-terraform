@@ -1,20 +1,26 @@
-# variable "vpc_id" {
-#   description = "The ID of the VPC"
-#   type        = string
-#   sensitive   = false
-# }
-
 variable "vpc_cidr_block" {
   description = "The CIDR block for the VPC"
   type        = string
   sensitive   = false
 }
 
-# variable "internet_gateway_id" {
-#   description = "The ID of the internet gateway"
-#   type        = string
-#   sensitive   = false
-# }
+variable "chat_queue" {
+  description = "The ARN of the visitor chat queue"
+  type = object({
+    id  = string
+    arn = string
+  })
+  sensitive = false
+}
+
+variable "notification_queue" {
+  description = "The ARN of the visitor notification queue"
+  type = object({
+    id  = string
+    arn = string
+  })
+  sensitive = false
+}
 
 variable "environment" {
   description = "The environment for the company chat service"

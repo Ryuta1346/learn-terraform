@@ -143,7 +143,7 @@ module "visitor_chat_queue_policy" {
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
   actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
-  resources = [module.visitor_chat_queue.queue_arn]
+  resources = [module.chat_queue.queue_arn]
   condition_vars = {
     test     = "ArnEquals"
     variable = "aws:SourceArn"
@@ -152,7 +152,7 @@ module "visitor_chat_queue_policy" {
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
-  queue_url = var.visitor_chat_queue.id
+  queue_url = var.chat_queue.id
   policy    = module.visitor_chat_queue_policy.policy_json
 }
 
@@ -212,7 +212,7 @@ module "notification_queue_policy" {
 }
 
 resource "aws_sqs_queue_policy" "notification_queue_policy" {
-  queue_url = var.visitor_notification_queue.id
+  queue_url = var.notification_queue.id
   policy    = module.notification_queue_policy.policy_json
 }
 

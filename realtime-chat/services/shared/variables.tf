@@ -26,10 +26,9 @@ variable "region" {
   description = "The region for the service"
   type        = string
   sensitive   = false
-
 }
 
-variable "visitor_chat_queue" {
+variable "chat_queue" {
   description = "The ARN of the visitor chat queue"
   type = object({
     id  = string
@@ -39,7 +38,7 @@ variable "visitor_chat_queue" {
 }
 
 variable "notification_queue" {
-  description = "The ARN of the notification queue"
+  description = "The ARN of the visitor notification queue"
   type = object({
     id  = string
     arn = string
