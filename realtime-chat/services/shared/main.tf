@@ -146,9 +146,9 @@ module "visitor_chat_queue_policy" {
   actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
   resources = [var.chat_queue.arn]
   condition_vars = {
-    test     = "ArnEquals"
-    variable = "aws:SourceArn"
-    values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
+    test     = "StringEquals"
+    variable = "aws:SourceVpc"
+    values   = [module.vpc.vpc_id]
   }
 }
 
@@ -206,9 +206,9 @@ module "notification_queue_policy" {
   actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
   resources = [var.notification_queue.arn]
   condition_vars = {
-    test     = "ArnEquals"
-    variable = "aws:SourceArn"
-    values   = [module.sqs_notify_vpc_endpoint.vpc_endpoint_arn]
+    test     = "StringEquals"
+    variable = "aws:SourceVpc"
+    values   = [module.vpc.vpc_id]
   }
 }
 

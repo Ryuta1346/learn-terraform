@@ -193,7 +193,6 @@ module "ecs" {
   project_name = var.project_name
 }
 
-
 module "private_subnet_for_vpc_endpoint" {
   source = "../../modules/subnet"
   subnet_vars = [
@@ -273,9 +272,9 @@ module "visitor_chat_queue_policy" {
   actions   = ["sqs:SendMessage"]
   resources = [var.chat_queue.arn]
   condition_vars = {
-    test     = "ArnEquals"
-    variable = "aws:SourceArn"
-    values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
+    test     = "StringEquals"
+    variable = "aws:SourceVpc"
+    values   = [module.vpc.vpc_id]
   }
 }
 

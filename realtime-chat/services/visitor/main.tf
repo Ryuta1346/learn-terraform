@@ -255,6 +255,7 @@ module "private_vpc_endpoint_sg" {
   project_name = var.project_name
 }
 
+## チャット永続化
 module "sqs_chat_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
   name               = "visitor-${var.project_name}-${var.environment}-sqs-chat"
@@ -274,13 +275,46 @@ module "visitor_chat_queue_policy" {
   actions   = ["sqs:SendMessage"]
   resources = [var.chat_queue.arn]
   condition_vars = {
-    test     = "ArnEquals"
-    variable = "aws:SourceArn"
-    values   = [module.sqs_chat_vpc_endpoint.vpc_endpoint_arn]
+    test     = "StringEquals"
+    variable = "aws:SourceVpc"
+    values   = [module.vpc.vpc_id]
   }
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
-  queue_url = var.chat_queue.id
-  policy    = module.visitor_chat_queue_policy.policy_json
+  depends_on = [module.sqs_chat_vpc_endpoint]
+  queue_url  = var.chat_queue.id
+  policy     = module.visitor_chat_queue_policy.policy_json
+}
+
+## 外部通知
+module "sqs_notify_vpc_endpoint" {
+  source             = "../../modules/vpc_endpoint"
+  name               = "visitor-${var.project_name}-${var.environment}-notify-sqs"
+  vpc_id             = module.vpc.vpc_id
+  service_name       = "com.amazonaws.us-east-1.sqs"
+  endpoint_type      = "Interface"
+  security_group_ids = [module.private_vpc_endpoint_sg.sg_id]
+  subnet_ids         = [module.private_subnet_for_vpc_endpoint.subnet_ids[0]]
+  environment        = var.environment
+  project_name       = var.project_name
+}
+
+module "visitor_notify_queue_policy" {
+  source    = "../../modules/iam_policy"
+  sid       = "AllowVPCEndpointAccess"
+  effect    = "Allow"
+  actions   = ["sqs:SendMessage"]
+  resources = [var.chat_queue.arn]
+  condition_vars = {
+    test     = "StringEquals"
+    variable = "aws:SourceVpc"
+    values   = [module.vpc.vpc_id]
+  }
+}
+
+resource "aws_sqs_queue_policy" "visitor_notify_queue_policy" {
+  depends_on = [module.sqs_notify_vpc_endpoint]
+  queue_url  = var.notification_queue.id
+  policy     = module.visitor_notify_queue_policy.policy_json
 }
