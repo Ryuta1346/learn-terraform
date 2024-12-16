@@ -258,7 +258,7 @@ module "private_vpc_endpoint_sg" {
 ## チャット永続化
 module "sqs_vpc_endpoint" {
   source             = "../../modules/vpc_endpoint"
-  name               = "visitor-${var.project_name}-${var.environment}-sqs-chat"
+  name               = "visitor-${var.project_name}-${var.environment}-sqs"
   vpc_id             = module.vpc.vpc_id
   service_name       = "com.amazonaws.us-east-1.sqs"
   endpoint_type      = "Interface"
@@ -268,7 +268,7 @@ module "sqs_vpc_endpoint" {
   project_name       = var.project_name
 }
 
-module "visitor_chat_queue_policy" {
+module "visitor_queue_policy" {
   source    = "../../modules/iam_policy"
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
@@ -284,7 +284,7 @@ module "visitor_chat_queue_policy" {
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
   depends_on = [module.sqs_vpc_endpoint]
   queue_url  = var.chat_queue.id
-  policy     = module.visitor_chat_queue_policy.policy_json
+  policy     = module.visitor_queue_policy.policy_json
 }
 
 ## 外部通知
@@ -293,7 +293,7 @@ module "visitor_notify_queue_policy" {
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
   actions   = ["sqs:SendMessage"]
-  resources = [var.chat_queue.arn]
+  resources = [var.notification_queue.arn]
   condition_vars = {
     test     = "StringEquals"
     variable = "aws:SourceVpc"
