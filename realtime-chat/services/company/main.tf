@@ -308,7 +308,7 @@ module "sqs_notify_vpc_endpoint" {
   project_name       = var.project_name
 }
 
-module "notification_queue" {
+module "visitor_notification_queue" {
   source     = "../../modules/sqs_queue"
   queue_name = "${var.project_name}-${var.environment}-notification-queue.fifo"
   queue_options = {
@@ -325,7 +325,7 @@ module "notification_queue_policy" {
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"
   actions   = ["sqs:SendMessage"]
-  resources = [module.notification_queue.queue_arn]
+  resources = [module.visitor_notification_queue.queue_arn]
   condition_vars = {
     test     = "ArnEquals"
     variable = "aws:SourceArn"

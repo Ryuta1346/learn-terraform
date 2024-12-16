@@ -1,20 +1,8 @@
-# variable "vpc_id" {
-#   description = "The ID of the VPC"
-#   type        = string
-#   sensitive   = false
-# }
-
 variable "vpc_cidr_block" {
   description = "The CIDR block for the VPC"
   type        = string
   sensitive   = false
 }
-
-# variable "internet_gateway_id" {
-#   description = "The ID of the internet gateway"
-#   type        = string
-#   sensitive   = false
-# }
 
 variable "availability_zones" {
   description = "The availability zones for the service"
@@ -40,14 +28,21 @@ variable "region" {
   sensitive   = false
 
 }
-# variable "visitor_chat_sg_id" {
-#   description = "The security group ID for the Visitor Chat service"
-#   type        = string
-#   sensitive   = false
-# }
 
-variable "visitor_chat_queue_id" {
+variable "visitor_chat_queue" {
   description = "The ARN of the visitor chat queue"
-  type        = string
-  sensitive   = false
+  type = object({
+    id  = string
+    arn = string
+  })
+  sensitive = false
+}
+
+variable "notification_queue" {
+  description = "The ARN of the notification queue"
+  type = object({
+    id  = string
+    arn = string
+  })
+  sensitive = false
 }
