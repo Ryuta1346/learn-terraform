@@ -230,9 +230,9 @@ module "sqs_lambda_role" {
   assume_role_policy = {
     statement = [
       {
-        Action    = "sts:AssumeRole"
-        Principal = { Service = "lambda.amazonaws.com" }
-        Effect    = "Allow"
+        action    = "sts:AssumeRole"
+        principal = { Service = "lambda.amazonaws.com" }
+        effect    = "Allow"
       }
     ]
   }
@@ -269,7 +269,7 @@ module "sqs_notify_lambda" {
   }
   environment  = var.environment
   project_name = var.project_name
-  iam_role_arn = aws_iam_role.lambda_role.arn
+  iam_role_arn = module.aqs_lambda_role.role_arn
 }
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
