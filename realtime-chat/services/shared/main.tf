@@ -254,6 +254,12 @@ module "sqs_notify_lambda_policy" {
   resources = [var.chat_queue.arn]
 }
 
+resource "aws_iam_policy" "lambda_exec_policy" {
+  name        = "${var.project_name}-lambda-exec-policy"
+  description = "Policy for Lambda execution"
+  policy      = module.sqs_notify_lambda_policy.policy_json
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = module.sqs_notify_lambda_policy.arn
@@ -274,6 +280,6 @@ module "sqs_notify_lambda" {
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
   event_source_arn = module.aws_resources.chat_queue.arn
-  function_name    = module.sqs_notify_lambda.function_arn
+  function_name    = module.aws_iam_policy.lambda_exec_policy.arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
