@@ -140,7 +140,7 @@ module "private_subnet_ecs" {
   project_name = var.project_name
 }
 
-module "private_route_table" {
+module "private_ecs_route_table" {
   source       = "../../modules/route_table"
   subnet_ids   = module.private_subnet_ecs.subnet_ids
   vpc_id       = module.vpc.vpc_id
