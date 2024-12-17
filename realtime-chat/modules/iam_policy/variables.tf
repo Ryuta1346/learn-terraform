@@ -44,3 +44,21 @@ variable "principals_vars" {
     identifiers = ["*"]
   }
 }
+
+variable "project_name" {
+  description = "The name of the project"
+  type        = string
+  sensitive   = false
+}
+
+variable "environment" {
+  description = "The environment for the company chat service"
+  type        = string
+  sensitive   = false
+}
+
+variable "description" {
+  description = "The description of the policy"
+  type        = string
+  sensitive   = false
+}

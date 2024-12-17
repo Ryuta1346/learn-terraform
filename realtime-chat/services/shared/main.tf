@@ -153,6 +153,9 @@ module "visitor_chat_queue_policy" {
     variable = "aws:SourceVpc"
     values   = [module.vpc.vpc_id]
   }
+  project_name = var.project_name
+  environment  = var.environment
+  description  = "Policy for VPC Endpoint to access SQS"
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
@@ -222,24 +225,20 @@ module "private_ecs_route_table" {
 }
 
 ## SQSからLambdaをトリガーする
-resource "aws_iam_role" "lambda_role" {
-  name = "${var.project_name}-lambda-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+module "sqs_lambda_role" {
+  source = "../../modules/iam_role"
+  assume_role_policy = {
+    statement = [
       {
         Action    = "sts:AssumeRole"
         Principal = { Service = "lambda.amazonaws.com" }
         Effect    = "Allow"
-      },
+      }
     ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole" # Lambda基本権限
+  }
+  policy_arns  = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole", module.sqs_notify_lambda_policy.policy_json]
+  environment  = var.environment
+  project_name = var.project_name
 }
 
 module "sqs_notify_lambda_policy" {
@@ -251,18 +250,10 @@ module "sqs_notify_lambda_policy" {
     "sqs:DeleteMessage",
     "sqs:GetQueueAttributes"
   ]
-  resources = [var.chat_queue.arn]
-}
-
-resource "aws_iam_policy" "lambda_exec_policy" {
-  name        = "${var.project_name}-lambda-exec-policy"
-  description = "Policy for Lambda execution"
-  policy      = module.sqs_notify_lambda_policy.policy_json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = module.sqs_notify_lambda_policy.policy_json
+  resources    = [var.chat_queue.arn]
+  project_name = var.project_name
+  environment  = var.environment
+  description  = "Policy for Lambda to access SQS"
 }
 
 module "sqs_notify_lambda" {
@@ -283,6 +274,6 @@ module "sqs_notify_lambda" {
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
   event_source_arn = var.chat_queue.arn
-  function_name    = aws_iam_policy.lambda_exec_policy.arn
+  function_name    = module.sqs_notify_lambda_policy.policy_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }

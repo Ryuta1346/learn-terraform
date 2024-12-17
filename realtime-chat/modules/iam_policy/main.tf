@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "policy" {
+data "aws_iam_policy_document" "policy_document" {
   statement {
     sid       = var.sid
     effect    = var.effect
@@ -20,4 +20,10 @@ data "aws_iam_policy_document" "policy" {
       identifiers = var.principals_vars.identifiers
     }
   }
+}
+
+resource "aws_iam_policy" "policy" {
+  name        = "${var.project_name}-${var.environment}-policy"
+  description = var.description
+  policy      = aws_iam_policy_document.policy_document.json
 }
