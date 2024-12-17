@@ -278,6 +278,9 @@ module "visitor_chat_queue_policy" {
     variable = "aws:SourceVpc"
     values   = [module.vpc.vpc_id]
   }
+  project_name = var.project_name
+  environment  = var.environment
+  description  = "The policy for the visitor chat queue"
 }
 
 resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
