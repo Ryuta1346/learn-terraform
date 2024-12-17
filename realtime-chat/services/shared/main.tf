@@ -274,6 +274,7 @@ module "sqs_notify_lambda" {
     filename      = "notify.zip"
     memory_size   = 128
     timeout       = 10
+    environment   = {}
   }
   environment  = var.environment
   project_name = var.project_name
