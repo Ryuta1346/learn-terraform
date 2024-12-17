@@ -24,11 +24,11 @@ variable "resources" {
 
 variable "condition_vars" {
   description = "The variables for the condition"
-  type = object({
+  type = optional(object({
     test     = string
     variable = string
     values   = list(string)
-  })
+  }))
   sensitive = false
 }
 

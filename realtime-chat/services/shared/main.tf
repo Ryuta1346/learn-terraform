@@ -160,54 +160,6 @@ resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
   policy    = module.visitor_chat_queue_policy.policy_json
 }
 
-module "private_notify_vpc_endpoint_sg" {
-  source              = "../../modules/security_group"
-  vpc_id              = module.vpc.vpc_id
-  security_group_name = "shared-private-notify-vpc-endpoint-sg"
-  description         = "Security group for the private subnet of shared notify vpc endpoint"
-  sg_rules = {
-    ingress_rules = [{
-      from_port                = 80
-      to_port                  = 80
-      protocol                 = "tcp"
-      source_security_group_id = module.private_ecs_chat_sg.sg_id
-      },
-      {
-        from_port                = 443
-        to_port                  = 443
-        protocol                 = "tcp"
-        source_security_group_id = module.private_ecs_chat_sg.sg_id
-    }],
-    egress_rules = [{
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-    }]
-  }
-  environment  = var.environment
-  project_name = var.project_name
-}
-
-## VPCエンドポイント用PrivateSubnet:外部通知用
-module "notification_queue_policy" {
-  source    = "../../modules/iam_policy"
-  sid       = "AllowVPCEndpointAccess"
-  effect    = "Allow"
-  actions   = ["sqs:ReceiveMessage", "sqs:DeleteMessage"]
-  resources = [var.notification_queue.arn]
-  condition_vars = {
-    test     = "StringEquals"
-    variable = "aws:SourceVpc"
-    values   = [module.vpc.vpc_id]
-  }
-}
-
-resource "aws_sqs_queue_policy" "notification_queue_policy" {
-  queue_url = var.notification_queue.id
-  policy    = module.notification_queue_policy.policy_json
-}
-
 
 ## チャット永続化処理用ECS
 module "private_ecs_chat_subnet" {
@@ -267,4 +219,62 @@ module "private_ecs_route_table" {
       gateway_id = "local"
     }
   ]
+}
+
+## SQSからLambdaをトリガーする
+resource "aws_iam_role" "lambda_role" {
+  name = "${var.project_name}-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action    = "sts:AssumeRole"
+        Principal = { Service = "lambda.amazonaws.com" }
+        Effect    = "Allow"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole" # Lambda基本権限
+}
+
+module "sqs_notify_lambda_policy" {
+  source = "../../modules/iam_policy"
+  sid    = "AllowVPCEndpointAccess"
+  effect = "Allow"
+  actions = [
+    "sqs:ReceiveMessage",
+    "sqs:DeleteMessage",
+    "sqs:GetQueueAttributes"
+  ]
+  resources = [var.chat_queue.arn]
+  condition_vars = null
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = module.sqs_notify_lambda_policy.arn
+}
+
+module "sqs_notify_lambda" {
+  source = "../../modules/lambda"
+  lambda_vars = {
+    function_name = "notify"
+    handler       = "notify.handler"
+    runtime       = "nodejs20.x"
+    filename      = "notify.zip"
+  }
+  environment  = var.environment
+  project_name = var.project_name
+  iam_role_arn = module.lambda_role.arn
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_trigger" {
+  event_source_arn = module.aws_resources.chat_queue.arn
+  function_name    = module.sqs_notify_lambda.function_arn
+  batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
