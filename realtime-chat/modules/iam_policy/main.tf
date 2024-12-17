@@ -5,10 +5,14 @@ data "aws_iam_policy_document" "policy" {
     actions   = var.actions
     resources = var.resources
 
-    condition {
-      test     = var.condition_vars.test
-      variable = var.condition_vars.variable
-      values   = var.condition_vars.values
+
+    dynamic "condition" {
+      for_each = var.condition_vars != null ? [var.condition_vars] : []
+      content {
+        test     = condition.value.test
+        variable = condition.value.variable
+        values   = condition.value.values
+      }
     }
 
     principals {

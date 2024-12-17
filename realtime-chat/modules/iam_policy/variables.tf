@@ -23,14 +23,13 @@ variable "resources" {
 }
 
 variable "condition_vars" {
-  description = "The variables for the condition"
+  description = "The optional condition block variables"
   type = object({
-    test     = string
-    variable = string
-    values   = list(string)
+    test     = optional(string)
+    variable = optional(string)
+    values   = optional(list(string))
   })
-  sensitive = false
-  default   = {}
+  default = null
 }
 
 variable "principals_vars" {
