@@ -262,7 +262,7 @@ resource "aws_iam_policy" "lambda_exec_policy" {
 
 resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = module.sqs_notify_lambda_policy.arn
+  policy_arn = module.sqs_notify_lambda_policy.policy_json
 }
 
 module "sqs_notify_lambda" {
@@ -272,6 +272,8 @@ module "sqs_notify_lambda" {
     handler       = "notify.handler"
     runtime       = "nodejs20.x"
     filename      = "notify.zip"
+    memory_size   = 128
+    timeout       = 10
   }
   environment  = var.environment
   project_name = var.project_name
