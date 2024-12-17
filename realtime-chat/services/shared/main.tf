@@ -251,7 +251,7 @@ module "sqs_notify_lambda_policy" {
     "sqs:DeleteMessage",
     "sqs:GetQueueAttributes"
   ]
-  resources = [var.chat_queue.arn]
+  resources      = [var.chat_queue.arn]
   condition_vars = null
 }
 
