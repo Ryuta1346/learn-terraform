@@ -275,11 +275,11 @@ module "sqs_notify_lambda" {
   }
   environment  = var.environment
   project_name = var.project_name
-  iam_role_arn = module.lambda_role.arn
+  iam_role_arn = aws_iam_role.lambda_role.arn
 }
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
-  event_source_arn = module.aws_resources.chat_queue.arn
-  function_name    = module.aws_iam_policy.lambda_exec_policy.arn
+  event_source_arn = var.chat_queue.arn
+  function_name    = aws_iam_policy.lambda_exec_policy.arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
