@@ -251,8 +251,7 @@ module "sqs_notify_lambda_policy" {
     "sqs:DeleteMessage",
     "sqs:GetQueueAttributes"
   ]
-  resources      = [var.chat_queue.arn]
-  condition_vars = null
+  resources = [var.chat_queue.arn]
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_sqs_policy_attachment" {

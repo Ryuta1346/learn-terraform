@@ -11,11 +11,13 @@ variable "lambda_vars" {
   })
   sensitive = false
   default = {
-    handler     = "index.handler"
-    runtime     = "nodejs20.x"
-    timeout     = 10
-    memory_size = 128
-    environment = {}
+    function_name = "function"
+    filename      = "index.zip"
+    handler       = "index.handler"
+    runtime       = "nodejs20.x"
+    timeout       = 10
+    memory_size   = 128
+    environment   = {}
   }
 }
 
