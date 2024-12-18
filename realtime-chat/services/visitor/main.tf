@@ -141,7 +141,7 @@ module "private_subnet" {
   project_name = var.project_name
 }
 
-module "private_ecs_route_table_id" {
+module "private_ecs_route_table" {
   source       = "../../modules/route_table"
   vpc_id       = module.vpc.vpc_id
   environment  = var.environment
@@ -155,7 +155,7 @@ module "private_ecs_route_table_id" {
   ]
 }
 
-module "private_chat_sg" {
+module "private_ecs_chat_sg" {
   source              = "../../modules/security_group"
   security_group_name = "visitor-chat-private"
   description         = "Security group for the private subnet"
@@ -238,13 +238,13 @@ module "private_vpc_endpoint_sg" {
       from_port                = 80
       to_port                  = 80
       protocol                 = "tcp"
-      source_security_group_id = module.private_chat_sg.sg_id
+      source_security_group_id = module.private_ecs_chat_sg.sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = module.private_chat_sg.sg_id
+        source_security_group_id = module.private_ecs_chat_sg.sg_id
     }],
     egress_rules = [{
       from_port   = 0
