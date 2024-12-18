@@ -52,7 +52,7 @@ variable "company_vars" {
     vpc_id             = string
     vpc_cider_block    = string
     ecs_route_table_id = string
-    ecs_sg_id          = string
+    ecs_chat_sg_id     = string
   })
   sensitive = false
 }
@@ -63,7 +63,7 @@ variable "visitor_vars" {
     vpc_id             = string
     vpc_cider_block    = string
     ecs_route_table_id = string
-    ecs_sg_id          = string
+    ecs_chat_sg_id     = string
   })
   sensitive = false
 }
