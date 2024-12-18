@@ -49,10 +49,10 @@ variable "notification_queue" {
 variable "company_vars" {
   description = "The variables for the company service"
   type = object({
-    vpc_id                = string
-    vpc_cider_block       = string
-    ecs_route_table_id    = string
-    ecs_security_group_id = string
+    vpc_id             = string
+    vpc_cider_block    = string
+    ecs_route_table_id = string
+    private_ecs_sg_id  = string
   })
   sensitive = false
 }
@@ -60,10 +60,10 @@ variable "company_vars" {
 variable "visitor_vars" {
   description = "The variables for the visitor service"
   type = object({
-    vpc_id                = string
-    vpc_cider_block       = string
-    ecs_route_table_id    = string
-    ecs_security_group_id = string
+    vpc_id             = string
+    vpc_cider_block    = string
+    ecs_route_table_id = string
+    private_ecs_sg_id  = string
   })
   sensitive = false
 }
