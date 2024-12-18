@@ -287,3 +287,4 @@ resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
   queue_url = var.chat_queue.id
   policy    = module.visitor_chat_queue_policy.policy_json
 }
+

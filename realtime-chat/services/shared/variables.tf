@@ -46,39 +46,24 @@ variable "notification_queue" {
   sensitive = false
 }
 
-# variable "company_vpc_id" {
-#   description = "The ID of the company VPC"
-#   type        = string
-#   sensitive   = false
-# }
-
-# variable "company_ecs_route_table_id" {
-#   description = "The ID of the company ECS route table"
-#   type        = string
-#   sensitive   = false
-# }
-
-# variable "visitor_ecs_route_table_id" {
-#   description = "The ID of the visitor ECS route table"
-#   type        = string
-#   sensitive   = false
-# }
-
-# variable "company_vars" {
-#   description = "The variables for the company service"
-#   type = object({
-#     vpc_id                  = string
-#     ecs_route_table_id       = string
-#   })
-#   sensitive = false
-# }
+variable "company_vars" {
+  description = "The variables for the company service"
+  type = object({
+    vpc_id                = string
+    vpc_cider_block       = string
+    ecs_route_table_id    = string
+    ecs_security_group_id = string
+  })
+  sensitive = false
+}
 
 variable "visitor_vars" {
   description = "The variables for the visitor service"
   type = object({
-    vpc_id             = string
-    vpc_cider_block    = string
-    ecs_route_table_id = string
+    vpc_id                = string
+    vpc_cider_block       = string
+    ecs_route_table_id    = string
+    ecs_security_group_id = string
   })
   sensitive = false
 }

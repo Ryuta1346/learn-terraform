@@ -7,3 +7,8 @@ output "private_ecs_route_table_id" {
   value       = module.private_ecs_route_table.route_table_id
   description = "The ID of the private route table"
 }
+
+output "private_ecs_sg_id" {
+  value       = module.private_ecs_sg.sg_id
+  description = "The ID of the private security group"
+}

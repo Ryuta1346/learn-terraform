@@ -53,4 +53,17 @@ module "shared" {
     id  = module.aws_resources.notification_queue.id
     arn = module.aws_resources.notification_queue.arn
   }
+  visitor_vars = {
+    vpc_id                = module.visitor_chat.vpc_id
+    vpc_cider_block       = module.visitor_chat.vpc_cidr_block
+    ecs_route_table_id    = module.visitor_chat.ecs_route_table_id
+    ecs_security_group_id = module.visitor_chat.ecs_security_group_id
+  }
+
+  company_vars = {
+    vpc_id                = module.company_chat.vpc_id
+    vpc_cider_block       = module.company_chat.vpc_cidr_block
+    ecs_route_table_id    = module.company_chat.ecs_route_table_id
+    ecs_security_group_id = module.company_chat.ecs_security_group_id
+  }
 }
