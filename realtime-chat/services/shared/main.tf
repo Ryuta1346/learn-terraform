@@ -310,25 +310,25 @@ module "private_aurora_sg" {
         from_port                = 80
         to_port                  = 80
         protocol                 = "tcp"
-        source_security_group_id = var.company_vars.ecs_security_group_id
+        source_security_group_id = var.company_vars.ecs_chat_sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = var.company_vars.ecs_security_group_id
+        source_security_group_id = var.company_vars.ecs_chat_sg_id
       },
       {
         from_port                = 80
         to_port                  = 80
         protocol                 = "tcp"
-        source_security_group_id = var.visitor_vars.ecs_security_group_id
+        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = var.visitor_vars.ecs_security_group_id
+        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
       },
       {
         from_port                = 80
@@ -347,13 +347,13 @@ module "private_aurora_sg" {
       from_port                = 0
       to_port                  = 0
       protocol                 = "-1"
-      source_security_group_id = var.company_vars.ecs_security_group_id
+      source_security_group_id = var.company_vars.ecs_chat_sg_id
       },
       {
         from_port                = 0
         to_port                  = 0
         protocol                 = "-1"
-        source_security_group_id = var.visitor_vars.ecs_security_group_id
+        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
         }, {
         from_port                = 0
         to_port                  = 0
@@ -385,7 +385,7 @@ resource "aws_security_group_rule" "company_ecs_aurora" {
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  security_group_id        = var.company_vars.ecs_security_group_id
+  security_group_id        = var.company_vars.ecs_chat_sg_id
   source_security_group_id = module.private_aurora_sg.sg_id
 }
 
@@ -395,7 +395,7 @@ resource "aws_security_group_rule" "visitor_ecs_aurora" {
   from_port                = 3306
   to_port                  = 3306
   protocol                 = "tcp"
-  security_group_id        = var.visitor_vars.ecs_security_group_id
+  security_group_id        = var.visitor_vars.ecs_chat_sg_id
   source_security_group_id = module.private_aurora_sg.sg_id
 }
 
@@ -427,25 +427,25 @@ module "private_elasticache_sg" {
         from_port                = 80
         to_port                  = 80
         protocol                 = "tcp"
-        source_security_group_id = var.company_vars.ecs_security_group_id
+        source_security_group_id = var.company_vars.ecs_chat_sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = var.company_vars.ecs_security_group_id
+        source_security_group_id = var.company_vars.ecs_chat_sg_id
       },
       {
         from_port                = 80
         to_port                  = 80
         protocol                 = "tcp"
-        source_security_group_id = var.visitor_vars.ecs_security_group_id
+        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = var.visitor_vars.ecs_security_group_id
+        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
       },
       {
         from_port                = 80
@@ -464,13 +464,13 @@ module "private_elasticache_sg" {
       from_port                = 0
       to_port                  = 0
       protocol                 = "-1"
-      source_security_group_id = var.company_vars.ecs_security_group_id
+      source_security_group_id = var.company_vars.ecs_chat_sg_id
       },
       {
         from_port                = 0
         to_port                  = 0
         protocol                 = "-1"
-        source_security_group_id = var.visitor_vars.ecs_security_group_id
+        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
         }, {
         from_port                = 0
         to_port                  = 0
