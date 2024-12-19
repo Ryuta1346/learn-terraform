@@ -50,13 +50,13 @@ module "private_elasticache_sg" {
         from_port                = 80
         to_port                  = 80
         protocol                 = "tcp"
-        source_security_group_id = module.private_ecs_chat_sg.sg_id
+        source_security_group_id = module.chat_persistence_lambda_sg.sg_id
       },
       {
         from_port                = 443
         to_port                  = 443
         protocol                 = "tcp"
-        source_security_group_id = module.private_ecs_chat_sg.sg_id
+        source_security_group_id = module.chat_persistence_lambda_sg.sg_id
       },
     ],
     egress_rules = [{
@@ -74,7 +74,7 @@ module "private_elasticache_sg" {
         from_port                = 0
         to_port                  = 0
         protocol                 = "-1"
-        source_security_group_id = module.private_ecs_chat_sg.sg_id
+        source_security_group_id = module.chat_persistence_lambda_sg.sg_id
     }]
   }
   environment  = var.environment
