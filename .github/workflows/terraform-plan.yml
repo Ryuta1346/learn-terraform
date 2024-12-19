@@ -72,7 +72,7 @@ jobs:
       # Terraform Planの実行
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color
+        run: terraform plan
         continue-on-error: false
 
       # Terraform Applyの実行 (条件付き)
