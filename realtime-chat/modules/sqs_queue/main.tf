@@ -1,4 +1,4 @@
-resource "aws_sqs_queue" "visitor_chat_queue" {
+resource "aws_sqs_queue" "queue" {
   name = var.queue_name
   #   name                        = "${var.project_name}-${var.environment}-visitor-chat-queue.fifo"
   fifo_queue                  = var.queue_options.fifo_queue
