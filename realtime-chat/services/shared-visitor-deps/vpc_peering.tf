@@ -1,7 +1,7 @@
 ## Visitor - Shared間のVPC Peering
 resource "aws_vpc_peering_connection" "with_visitor_ecs" {
   vpc_id      = var.visitor_chat_vpc_id # リクエストを発行する側
-  peer_vpc_id = module.vpc.vpc_id       # リクエストを受け取る側
+  peer_vpc_id = var.shared_chat_vpc_id  # リクエストを受け取る側
   auto_accept = true                    # 自動でリクエストを承認するかどうか
 
   requester {
