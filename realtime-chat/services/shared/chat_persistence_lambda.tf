@@ -18,7 +18,7 @@ module "chat_persistence_lambda_subnet" {
 module "chat_persistence_route_table" {
   source       = "../../modules/route_table"
   vpc_id       = module.vpc.vpc_id
-  subnet_ids   = module.chat_persistence_lambda.subnet_ids
+  subnet_ids   = module.chat_persistence_lambda_subnet.subnet_ids
   environment  = var.environment
   project_name = var.project_name
   routes = [
