@@ -86,7 +86,7 @@ module "sqs_chat_lambda_role" {
 # 動作確認用関数のZip化
 resource "null_resource" "zip_lambda" {
   provisioner "local-exec" {
-    command = "zip notify.zip notify.js"
+    command = "zip ./notify.zip notify.js"
   }
 
   triggers = {
