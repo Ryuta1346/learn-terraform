@@ -83,6 +83,17 @@ module "sqs_chat_lambda_role" {
   project_name = var.project_name
 }
 
+# 動作確認用関数のZip化
+resource "null_resource" "zip_lambda" {
+  provisioner "local-exec" {
+    command = "zip notify.zip notify.js"
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+}
+
 module "chat_persistence_lambda" {
   source = "../../modules/lambda"
   lambda_vars = {
