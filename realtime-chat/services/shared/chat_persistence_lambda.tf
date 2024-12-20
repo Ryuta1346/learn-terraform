@@ -101,6 +101,7 @@ resource "null_resource" "zip_lambda" {
 }
 
 module "chat_persistence_lambda" {
+  depends_on = [ module.null_resource.zip_lambda ]
   source = "../../modules/lambda"
   lambda_vars = {
     function_name = "notify"
