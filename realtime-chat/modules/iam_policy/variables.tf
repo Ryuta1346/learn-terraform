@@ -32,18 +32,18 @@ variable "condition_vars" {
   default = null
 }
 
-variable "principals_vars" {
-  description = "The variables for the principals"
-  type = object({
-    type        = string
-    identifiers = list(string)
-  })
-  sensitive = false
-  default = {
-    type        = "AWS"
-    identifiers = ["*"]
-  }
-}
+# variable "principals_vars" {
+#   description = "The variables for the principals"
+#   type = object({
+#     type        = string
+#     identifiers = list(string)
+#   })
+#   sensitive = false
+#   default = {
+#     type        = "AWS"
+#     identifiers = ["*"]
+#   }
+# }
 
 variable "project_name" {
   description = "The name of the project"

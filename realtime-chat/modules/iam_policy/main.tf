@@ -15,10 +15,10 @@ data "aws_iam_policy_document" "policy_document" {
       }
     }
 
-    principals {
-      type        = var.principals_vars.type
-      identifiers = var.principals_vars.identifiers
-    }
+    # principals {
+    #   type        = var.principals_vars.type
+    #   identifiers = var.principals_vars.identifiers
+    # }
   }
 }
 
