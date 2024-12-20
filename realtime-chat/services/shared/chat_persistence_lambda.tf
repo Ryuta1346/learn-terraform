@@ -87,6 +87,7 @@ module "sqs_chat_lambda_role" {
 resource "null_resource" "zip_lambda" {
   provisioner "local-exec" {
     command = <<EOT
+      pwd
       if [ ! -f "notify.js" ]; then
         echo "Error: notify.js does not exist in the current directory" && exit 1
       fi
