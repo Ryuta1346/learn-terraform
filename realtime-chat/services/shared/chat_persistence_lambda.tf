@@ -102,7 +102,7 @@ module "sqs_chat_lambda_role" {
 # }
 
 module "chat_persistence_lambda" {
-  depends_on = [null_resource.zip_lambda]
+  # depends_on = [null_resource.zip_lambda]
   source = "../../modules/lambda"
   lambda_vars = {
     function_name = "notify"
