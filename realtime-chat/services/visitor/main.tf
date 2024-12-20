@@ -294,10 +294,15 @@ resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
 
 ## 外部通知
 module "visitor_notify_queue_policy" {
-  source    = "../../modules/iam_policy"
-  sid       = "AllowVPCEndpointAccess"
-  effect    = "Allow"
-  actions   = ["sqs:SendMessage"]
+  source = "../../modules/iam_policy"
+  sid    = "AllowVPCEndpointAccess"
+  effect = "Allow"
+  actions = [
+    "sqs:SendMessage",
+    "sqs:ReceiveMessage",
+    "sqs:DeleteMessage",
+    "sqs:GetQueueAttributes"
+  ]
   resources = [var.notification_queue.arn]
   condition_vars = {
     test     = "StringEquals"

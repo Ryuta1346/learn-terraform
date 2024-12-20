@@ -56,6 +56,7 @@ module "sqs_chat_lambda_policy" {
   actions = [
     "sqs:ReceiveMessage",
     "sqs:DeleteMessage",
+    "sqs:SendMessage",
     "sqs:GetQueueAttributes"
   ]
   resources    = [var.chat_queue.arn]
@@ -82,24 +83,6 @@ module "sqs_chat_lambda_role" {
   environment  = var.environment
   project_name = var.project_name
 }
-
-# 動作確認用関数のZip化
-# resource "null_resource" "zip_lambda" {
-#   provisioner "local-exec" {
-#     command = <<EOT
-#       pwd
-#       if [ ! -f "notify.js" ]; then
-#         echo "Error: notify.js does not exist in the current directory" && exit 1
-#       fi
-#       echo "notify.js exists at $(pwd)/notify.js"
-#       zip notify.zip notify.js
-#     EOT
-#   }
-
-#   triggers = {
-#     always_run = timestamp()
-#   }
-# }
 
 module "chat_persistence_lambda" {
   # depends_on = [null_resource.zip_lambda]
