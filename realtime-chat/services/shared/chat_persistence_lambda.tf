@@ -38,9 +38,9 @@ module "chat_persistence_lambda_sg" {
     # 内部的にAWS LambdaからSQSをポーリングするためSQSからのIngressルールは不要
     ingress_rules = [],
     egress_rules = [{
-      from_port   = 3306
-      to_port     = 3306
-      protocol    = "tcp"
+      from_port                = 3306
+      to_port                  = 3306
+      protocol                 = "tcp"
       source_security_group_id = module.private_aurora_sg.sg_id
     }]
   }
@@ -75,7 +75,7 @@ module "sqs_chat_lambda_role" {
       }
     ]
   }
-  policy_arns  = [
+  policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
     module.sqs_chat_lambda_policy.policy_arn
   ]
