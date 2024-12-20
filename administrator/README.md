@@ -54,3 +54,23 @@ Terraformでのリソース作成・更新・削除などを行う権限を持�
 6. GitHubのActionsから、今回作成したCIを選択し、実行する
     - 今回のプロジェクトでは、手動で実行するディレクトリの指定とapplyの実行有無までを設定して実行する
     - 場合によってPR作成時に `terraform plan` を実行しコメント上に表示したり、`main` へのマージで`terraform apply`を実行させるなどカスタムする
+
+## Terraform stateのS3管理について
+
+`module/common/backend_setup.tf`で、terraformのstateファイルを管理するリソースを作成する。
+
+その後、`backend.tf`に`backend`を追加し、作成したリソースの情報を追記することで、今後のstateファイルがS3上で管理されるようになる。
+
+ただし、作成した管理用S3情報をそのままにしておくと`terraform destroy`等を実行した場合に削除されてしまう可能性がある。
+
+削除不可の設定にしている場合は削除不可のエラーメッセージが表示されたり、本来管理したいリソース以外の情報を残し続けておくことになる。
+
+そこで、state管理用のS3リソースの作成をstate管理上削除しておくことで呼び出しコードの削除や`terraform destroy`の影響を受けないようにできる
+
+```bash
+# stateファイルの中身を確認
+$ terraform state list
+
+# state管理用のリソース情報を削除
+$ terraform state rm "対象のモジュール名"
+```

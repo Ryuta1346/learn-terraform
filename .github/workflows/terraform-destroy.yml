@@ -69,14 +69,8 @@ jobs:
       - name: Check Terraform Version
         run: terraform --version
 
-      # Terraform Planの実行
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan
-        continue-on-error: false
-
-      # Terraform Applyの実行 (条件付き)
-      - name: Terraform Apply
+      # Terraform Destroyの実行 (条件付き)
+      - name: Terraform Destroy
         id: apply
         if: ${{ github.event.inputs.execute_destroy == 'true' }} # destroyが選択された場合のみ実行
         run: terraform destroy -auto-approve
