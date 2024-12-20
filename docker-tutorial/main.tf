@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "docker" {
-    host = "unix:///Users/ryuta/.docker/run/docker.sock"
+  host = "unix:///Users/ryuta/.docker/run/docker.sock"
 }
 
 resource "docker_image" "nginx" {
