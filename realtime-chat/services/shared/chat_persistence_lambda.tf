@@ -86,7 +86,13 @@ module "sqs_chat_lambda_role" {
 # 動作確認用関数のZip化
 resource "null_resource" "zip_lambda" {
   provisioner "local-exec" {
-    command = "zip ./realtime-chat/services/shared/notify.zip ./realtime-chat/services/shared/notify.js"
+    command = <<EOT
+      if [ ! -f "notify.js" ]; then
+        echo "Error: notify.js does not exist in the current directory" && exit 1
+      fi
+      echo "notify.js exists at $(pwd)/notify.js"
+      zip notify.zip notify.js
+    EOT
   }
 
   triggers = {
@@ -100,7 +106,7 @@ module "chat_persistence_lambda" {
     function_name = "notify"
     handler       = "notify.handler"
     runtime       = "nodejs20.x"
-    filename      = "./realtime-chat/services/shared/notify.zip"
+    filename      = "notify.zip"
     memory_size   = 128
     timeout       = 10
     environment   = {}
