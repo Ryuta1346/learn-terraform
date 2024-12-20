@@ -34,7 +34,7 @@ module "sqs_lambda_role" {
       }
     ]
   }
-  policy_arns  = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole", module.sqs_notify_lambda_policy.policy_json]
+  policy_arns  = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole", module.sqs_notify_lambda_policy.policy_arn]
   environment  = var.environment
   project_name = var.project_name
 }
