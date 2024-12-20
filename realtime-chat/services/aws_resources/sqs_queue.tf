@@ -72,6 +72,6 @@ module "sqs_notify_lambda" {
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
   event_source_arn = module.chat_queue.queue_arn
-  function_name    = module.sqs_notify_lambda_policy.policy_arn
+  function_name    = module.sqs_notify_lambda.function_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
