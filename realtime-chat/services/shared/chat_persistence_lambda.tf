@@ -77,13 +77,13 @@ module "sqs_chat_lambda_role" {
   }
   policy_arns  = [
     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-    module.sqs_chat_lambda_policy.policy_json
+    module.sqs_chat_lambda_policy.policy_arn
   ]
   environment  = var.environment
   project_name = var.project_name
 }
 
-module "sqs_notify_lambda" {
+module "chat_persistence_lambda" {
   source = "../../modules/lambda"
   lambda_vars = {
     function_name = "notify"
@@ -97,4 +97,10 @@ module "sqs_notify_lambda" {
   environment  = var.environment
   project_name = var.project_name
   iam_role_arn = module.sqs_chat_lambda_role.role_arn
+}
+
+resource "aws_lambda_event_source_mapping" "sqs_trigger_chat" {
+  event_source_arn = module.chat_queue.queue_arn
+  function_name    = module.chat_persistence_lambda.function_arn
+  batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
