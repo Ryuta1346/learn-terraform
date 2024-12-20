@@ -40,17 +40,17 @@ module "sqs_lambda_role" {
 }
 
 module "sqs_notify_lambda_policy" {
-  source      = "../../modules/iam_policy"
-  sid         = "AllowSQSAccessForLambda"
-  effect      = "Allow"
-  actions     = [
+  source = "../../modules/iam_policy"
+  sid    = "AllowSQSAccessForLambda"
+  effect = "Allow"
+  actions = [
     "sqs:ReceiveMessage",
     "sqs:DeleteMessage",
     "sqs:GetQueueAttributes",
     "sqs:GetQueueUrl",
     "sqs:ChangeMessageVisibility"
   ]
-  resources   = [module.chat_queue.queue_arn]
+  resources    = [module.notification_queue.queue_arn]
   project_name = var.project_name
   environment  = var.environment
   description  = "Policy for Lambda to access SQS"
@@ -73,7 +73,7 @@ module "sqs_notify_lambda" {
 }
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger" {
-  event_source_arn = module.chat_queue.queue_arn
+  event_source_arn = module.notification_queue.queue_arn
   function_name    = module.sqs_notify_lambda.function_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
