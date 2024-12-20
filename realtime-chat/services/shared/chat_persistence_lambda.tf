@@ -100,7 +100,7 @@ module "chat_persistence_lambda" {
 }
 
 resource "aws_lambda_event_source_mapping" "sqs_trigger_chat" {
-  event_source_arn = module.chat_queue.queue_arn
+  event_source_arn = var.chat_queue.arn
   function_name    = module.chat_persistence_lambda.function_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
