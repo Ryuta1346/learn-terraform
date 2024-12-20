@@ -40,15 +40,17 @@ module "sqs_lambda_role" {
 }
 
 module "sqs_notify_lambda_policy" {
-  source = "../../modules/iam_policy"
-  sid    = "AllowVPCEndpointAccess"
-  effect = "Allow"
-  actions = [
+  source      = "../../modules/iam_policy"
+  sid         = "AllowSQSAccessForLambda"
+  effect      = "Allow"
+  actions     = [
     "sqs:ReceiveMessage",
     "sqs:DeleteMessage",
-    "sqs:GetQueueAttributes"
+    "sqs:GetQueueAttributes",
+    "sqs:GetQueueUrl",
+    "sqs:ChangeMessageVisibility"
   ]
-  resources    = [module.chat_queue.queue_arn]
+  resources   = [module.chat_queue.queue_arn]
   project_name = var.project_name
   environment  = var.environment
   description  = "Policy for Lambda to access SQS"
