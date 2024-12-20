@@ -100,7 +100,7 @@ module "chat_persistence_lambda" {
     function_name = "notify"
     handler       = "notify.handler"
     runtime       = "nodejs20.x"
-    filename      = "notify.zip"
+    filename      = "./realtime-chat/services/shared/notify.zip"
     memory_size   = 128
     timeout       = 10
     environment   = {}
