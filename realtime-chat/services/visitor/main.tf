@@ -271,10 +271,15 @@ module "sqs_vpc_endpoint" {
 }
 
 module "visitor_queue_policy" {
-  source    = "../../modules/iam_policy"
-  sid       = "AllowVPCEndpointAccess"
-  effect    = "Allow"
-  actions   = ["sqs:SendMessage"]
+  source = "../../modules/iam_policy"
+  sid    = "AllowVPCEndpointAccess"
+  effect = "Allow"
+  actions = [
+    "sqs:SendMessage",
+    "sqs:ReceiveMessage",
+    "sqs:DeleteMessage",
+    "sqs:GetQueueAttributes"
+  ]
   resources = [var.chat_queue.arn]
   condition_vars = {
     test     = "StringEquals"
