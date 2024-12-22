@@ -90,10 +90,10 @@ module "chat_persistence_lambda" {
   # depends_on = [null_resource.zip_lambda]
   source = "../../modules/lambda"
   lambda_vars = {
-    function_name = "notify"
+    function_name = "chat-notify"
     handler       = "notify.handler"
     runtime       = "nodejs20.x"
-    filename      = "notify.zip"
+    filename      = "chat-persistence.zip"
     memory_size   = 128
     timeout       = 10
     environment   = {}
