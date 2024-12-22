@@ -22,23 +22,6 @@ module "notification_queue" {
   project_name = var.project_name
 }
 
-## SQSからLambdaをトリガーする
-module "sqs_lambda_role" {
-  source = "../../modules/iam_role"
-  assume_role_policy = {
-    statement = [
-      {
-        action    = "sts:AssumeRole"
-        principal = { service = "lambda.amazonaws.com" }
-        effect    = "Allow"
-      }
-    ]
-  }
-  policy_arns  = ["arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole", module.sqs_notify_lambda_policy.policy_arn]
-  environment  = var.environment
-  project_name = var.project_name
-}
-
 module "sqs_notify_lambda_policy" {
   source = "../../modules/iam_policy"
   sid    = "AllowSQSAccessForLambda"
@@ -54,6 +37,26 @@ module "sqs_notify_lambda_policy" {
   project_name = var.project_name
   environment  = var.environment
   description  = "Policy for Lambda to access SQS"
+}
+
+## SQSからLambdaをトリガーする
+module "sqs_lambda_role" {
+  source = "../../modules/iam_role"
+  assume_role_policy = {
+    statement = [
+      {
+        action    = "sts:AssumeRole"
+        principal = { service = "lambda.amazonaws.com" }
+        effect    = "Allow"
+      }
+    ]
+  }
+  policy_arns  = [
+    "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+    module.sqs_notify_lambda_policy.policy_arn
+  ]
+  environment  = var.environment
+  project_name = var.project_name
 }
 
 module "sqs_notify_lambda" {
@@ -72,7 +75,7 @@ module "sqs_notify_lambda" {
   iam_role_arn = module.sqs_lambda_role.role_arn
 }
 
-resource "aws_lambda_event_source_mapping" "sqs_trigger" {
+resource "aws_lambda_event_source_mapping" "sqs_notify_trigger" {
   event_source_arn = module.notification_queue.queue_arn
   function_name    = module.sqs_notify_lambda.function_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
