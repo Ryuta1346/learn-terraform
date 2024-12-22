@@ -113,6 +113,7 @@ resource "aws_kms_key" "aurora_realtime_chats" {
   }
 }
 
+// 事前に作成しておく `aws ssm put-parameter --name "/example/path/value" --type "SecureString" --value "password-value" --description "description" --region "region-name"" `
 data "aws_ssm_parameter" "master_password" {
   name = "/aurora/realtime-chat/dev/password"
 }
