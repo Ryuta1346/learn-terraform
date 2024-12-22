@@ -79,13 +79,13 @@ resource "aws_rds_cluster_parameter_group" "realtime_chats" {
 }
 
 resource "aws_rds_cluster" "realtime_chats_cluster" {
-  cluster_identifier              = "${var.project_name}-${var.environment}-cluster"
-  engine                          = "aurora"
-  engine_version                  = "8.0.mysql_aurora.3.07.1"
-  database_name                   = "realtime-chats"
-  master_username                 = "admin"
-  master_password                 = "password"
-  db_subnet_group_name            = "${var.project_name}-${var.environment}-chats"
+  cluster_identifier   = "${var.project_name}-${var.environment}-cluster"
+  engine               = "aurora-mysql"
+  engine_version       = "8.0.mysql_aurora.3.07.1"
+  database_name        = "realtime-chats"
+  master_username      = "admin"
+  master_password      = "password"
+  db_subnet_group_name = module.private_aurora_subnet.subnet_names[0]
   vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
   skip_final_snapshot             = true
@@ -103,8 +103,8 @@ resource "aws_rds_cluster_instance" "instance1" {
   identifier                   = "${var.project_name}-${var.environment}-instance1"
   cluster_identifier           = aws_rds_cluster.realtime_chats_cluster.id
   instance_class               = "db.t3.micro"
-  engine                       = "aurora"
-  engine_version               = "8.0.mysql_aurora.3.08.0"
+  engine                       = aws_rds_cluster.realtime_chats_cluster.engine
+  engine_version               = aws_rds_cluster.realtime_chats_cluster.engine_version
   availability_zone            = var.availability_zones[0]
   db_parameter_group_name      = aws_rds_cluster_parameter_group.realtime_chats.name
   ca_cert_identifier           = "rds-ca-2019"
