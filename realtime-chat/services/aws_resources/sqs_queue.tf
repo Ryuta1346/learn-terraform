@@ -82,5 +82,5 @@ resource "aws_lambda_event_source_mapping" "sqs_notify_trigger" {
 }
 
 output "sqs_lambda_role_policy_arns" {
-  value = module.sqs_lambda_role.policy_arns
+  value = module.sqs_lambda_role.role_arn
 }
