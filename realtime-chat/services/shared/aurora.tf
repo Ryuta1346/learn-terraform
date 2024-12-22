@@ -60,3 +60,61 @@ module "private_aurora_route_table" {
     }
   ]
 }
+
+resource "aws_rds_cluster_parameter_group" "realtime_chats" {
+  name        = "${var.project_name}-${var.environment}-cluster-parameter-group"
+  family      = "aurora-mysql8.0" # 対応するエンジンとバージョン
+  description = "Custom parameter group for Aurora MySQL 8"
+  parameter {
+    name         = "character_set_server"
+    value        = "utf8mb4"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name         = "slow_query_log"
+    value        = "1"
+    apply_method = "immediate"
+  }
+}
+
+resource "aws_rds_cluster" "realtime_chats_cluster" {
+  cluster_identifier              = "${var.project_name}-${var.environment}-cluster"
+  engine                          = "aurora"
+  engine_version                  = "8.0.mysql_aurora.3.07.1"
+  database_name                   = "realtime-chats"
+  master_username                 = "admin"
+  master_password                 = "password"
+  db_subnet_group_name            = "${var.project_name}-${var.environment}-chats"
+  vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
+  skip_final_snapshot             = true
+  backup_retention_period         = 0
+  # storage_encrypted = true
+  # storage_encryption_key = module.kms.key_arn
+  tags = {
+    Name    = "${var.project_name}-${var.environment}"
+    Project = var.project_name
+    Env     = var.environment
+  }
+}
+
+resource "aws_rds_cluster_instance" "instance1" {
+  identifier                   = "${var.project_name}-${var.environment}-instance1"
+  cluster_identifier           = aws_rds_cluster.realtime_chats_cluster.id
+  instance_class               = "db.t3.micro"
+  engine                       = "aurora"
+  engine_version               = "8.0.mysql_aurora.3.08.0"
+  availability_zone            = var.availability_zones[0]
+  db_parameter_group_name      = aws_rds_cluster_parameter_group.realtime_chats.name
+  ca_cert_identifier           = "rds-ca-2019"
+  auto_minor_version_upgrade   = true
+  performance_insights_enabled = false
+  # monitoring_interval          = 60
+  # monitoring_role_arn          = "" // RDSが拡張モニタリングメトリクスをCloudWatch Logsに送信することを許可するIAMロールのARN
+
+  tags = {
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
