@@ -13,3 +13,8 @@ resource "aws_iam_role" "role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_execution_policy_attachment" {
+  for_each = { for idx, policy_arn in var.policy_arns : idx => policy_arn }
+  role = aws_iam_role.role.name
+  policy_arn = each.value
+}
