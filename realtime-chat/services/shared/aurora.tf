@@ -153,7 +153,6 @@ resource "aws_rds_cluster_instance" "instance1" {
   availability_zone            = element(var.availability_zones, count.index)
   auto_minor_version_upgrade   = true
   performance_insights_enabled = false
-  kms_key_id                   = aws_kms_key.aurora_realtime_chats.arn
   # ca_cert_identifier           = "rds-ca-2019"
   # monitoring_interval          = 60
   # monitoring_role_arn          = "" // RDSが拡張モニタリングメトリクスをCloudWatch Logsに送信することを許可するIAMロールのARN
