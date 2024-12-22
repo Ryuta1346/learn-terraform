@@ -7,3 +7,7 @@ locals {
     elasticache1 = 4
   }
 }
+
+locals {
+  instance_count = 2
+}

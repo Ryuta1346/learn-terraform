@@ -75,8 +75,8 @@ resource "aws_db_subnet_group" "aurora_subnet_group" {
   subnet_ids  = module.private_aurora_subnet.subnet_ids
 
   tags = {
-    Environment = "dev"
-    Project     = "OPTEMO"
+    Environment = var.environment
+    Project     = var.project_name
   }
 }
 
@@ -97,38 +97,64 @@ resource "aws_rds_cluster_parameter_group" "realtime_chats" {
   }
 }
 
+// [Resource: aws_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key)
+resource "aws_kms_key" "aurora_realtime_chats" {
+  description         = "KMS key for Aurora MySQL cluster for ${var.project_name}-${var.environment}"
+  enable_key_rotation = false // 本番運用の際には原則trueで運用する
+  rotation_period_in_days = 180
+  is_enabled              = true
+  deletion_window_in_days = 30
+  multi_region            = false // default: false
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-aurora"
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
+
+data "aws_ssm_parameter" "master_password" {
+  name = "/aurora/realtime-chat/dev/password"
+}
+
 resource "aws_rds_cluster" "realtime_chats_cluster" {
   depends_on                      = [aws_rds_cluster_parameter_group.realtime_chats]
   cluster_identifier              = "${var.project_name}-${var.environment}-cluster"
+  deletion_protection             = false // 本番運用の際にはtrueで運用する
   engine                          = "aurora-mysql"
-  engine_version                  = "8.0.mysql_aurora.3.07.1"
+  engine_version                  = "8.0.mysql_aurora.3.08.0"
   database_name                   = "realtime_chats_${var.environment}"
   master_username                 = "admin"
-  master_password                 = "password"
+  master_password                 = var.aws_ssm_parameter.master_password // 本番運用の際にはmanage_master_user_passwordをtrueとし、Secrets Managerで管理する
   db_subnet_group_name            = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
+  performance_insights_enabled    = true
+  storage_type                    = "aurora-iopt1"
   skip_final_snapshot             = true
-  # backup_retention_period         = 0
-  # storage_encrypted = true
-  # storage_encryption_key = module.kms.key_arn
+  storage_encrypted               = true
+  kms_key_id                      = aws_kms_key.aurora_realtime_chats.arn
+  preferred_backup_window         = "03:00-04:00"
+  preferred_maintenance_window    = "Mon:02:00-Mon:03:00"
   tags = {
-    Name    = "${var.project_name}-${var.environment}"
-    Project = var.project_name
-    Env     = var.environment
+    Name        = "${var.project_name}-${var.environment}"
+    Project     = var.project_name
+    Environment = var.environment
   }
 }
 
 resource "aws_rds_cluster_instance" "instance1" {
-  identifier         = "${var.project_name}-${var.environment}-instance1"
-  cluster_identifier = aws_rds_cluster.realtime_chats_cluster.id
-  instance_class     = "db.t3.medium"
-  engine             = aws_rds_cluster.realtime_chats_cluster.engine
-  engine_version     = aws_rds_cluster.realtime_chats_cluster.engine_version
-  availability_zone  = var.availability_zones[0]
-  # ca_cert_identifier           = "rds-ca-2019"
+  count                        = local.instance_count
+  identifier                   = "${var.project_name}-${var.environment}-instance1"
+  cluster_identifier           = aws_rds_cluster.realtime_chats_cluster.id
+  instance_class               = "db.t3.medium"
+  engine                       = aws_rds_cluster.realtime_chats_cluster.engine
+  engine_version               = aws_rds_cluster.realtime_chats_cluster.engine_version
+  availability_zone            = element(var.availability_zones, count.index)
   auto_minor_version_upgrade   = true
   performance_insights_enabled = false
+  kms_key_id                   = aws_kms_key.aurora_realtime_chats.arn
+  # ca_cert_identifier           = "rds-ca-2019"
   # monitoring_interval          = 60
   # monitoring_role_arn          = "" // RDSが拡張モニタリングメトリクスをCloudWatch Logsに送信することを許可するIAMロールのARN
 
