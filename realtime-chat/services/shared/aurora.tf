@@ -121,7 +121,7 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
 resource "aws_rds_cluster_instance" "instance1" {
   identifier                   = "${var.project_name}-${var.environment}-instance1"
   cluster_identifier           = aws_rds_cluster.realtime_chats_cluster.id
-  instance_class               = "db.t3.micro"
+  instance_class               = "db.t3.medium"
   engine                       = aws_rds_cluster.realtime_chats_cluster.engine
   engine_version               = aws_rds_cluster.realtime_chats_cluster.engine_version
   availability_zone            = var.availability_zones[0]
