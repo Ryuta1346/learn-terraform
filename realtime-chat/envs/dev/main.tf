@@ -76,10 +76,10 @@ module "shared_company_deps" {
   shared_chat_private_aurora_sg_id      = module.shared.private_aurora_sg_id
   shared_chat_private_elasticache_sg_id = module.shared.private_elasticache_sg_id
   shared_chat_vpc_id                    = module.shared.vpc_id
+  shared_vpc_cidr_block                 = module.shared.vpc_cidr_block
   company_chat_vpc_id                   = module.company_chat.vpc_id
   company_ecs_route_table_id            = module.company_chat.ecs_route_table_id
   company_ecs_chat_sg_id                = module.company_chat.ecs_chat_sg_id
-  company_vpc_cider_block               = module.company_chat.vpc_cidr_block
 }
 
 module "shared_visitor_deps" {
@@ -90,8 +90,8 @@ module "shared_visitor_deps" {
   shared_chat_private_aurora_sg_id      = module.shared.private_aurora_sg_id
   shared_chat_private_elasticache_sg_id = module.shared.private_elasticache_sg_id
   shared_chat_vpc_id                    = module.shared.vpc_id
+  shared_vpc_cidr_block                 = module.shared.vpc_cidr_block
   visitor_chat_vpc_id                   = module.visitor_chat.vpc_id
   visitor_ecs_route_table_id            = module.visitor_chat.ecs_route_table_id
   visitor_ecs_chat_sg_id                = module.visitor_chat.ecs_chat_sg_id
-  visitor_vpc_cider_block               = module.visitor_chat.vpc_cidr_block
 }
