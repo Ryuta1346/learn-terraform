@@ -61,6 +61,17 @@ module "private_aurora_route_table" {
   ]
 }
 
+resource "aws_db_subnet_group" "aurora_subnet_group" {
+  name        = "${var.project_name}-${var.environment}-aurora-subnet-group"
+  description = "Subnet group for Aurora MySQL cluster for ${var.project_name}-${var.environment}"
+  subnet_ids  = [module.private_aurora_sg.sg_id]
+
+  tags = {
+    Environment = "dev"
+    Project     = "OPTEMO"
+  }
+}
+
 resource "aws_rds_cluster_parameter_group" "realtime_chats" {
   name        = "${var.project_name}-${var.environment}-cluster-parameter-group"
   family      = "aurora-mysql8.0" # 対応するエンジンとバージョン
@@ -79,13 +90,13 @@ resource "aws_rds_cluster_parameter_group" "realtime_chats" {
 }
 
 resource "aws_rds_cluster" "realtime_chats_cluster" {
-  cluster_identifier   = "${var.project_name}-${var.environment}-cluster"
-  engine               = "aurora-mysql"
-  engine_version       = "8.0.mysql_aurora.3.07.1"
-  database_name        = "realtime-chats"
-  master_username      = "admin"
-  master_password      = "password"
-  db_subnet_group_name = module.private_aurora_subnet.subnet_names[0]
+  cluster_identifier              = "${var.project_name}-${var.environment}-cluster"
+  engine                          = "aurora-mysql"
+  engine_version                  = "8.0.mysql_aurora.3.07.1"
+  database_name                   = "realtime-chats"
+  master_username                 = "admin"
+  master_password                 = "password"
+  db_subnet_group_name            = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
   skip_final_snapshot             = true
