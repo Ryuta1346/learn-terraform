@@ -18,7 +18,7 @@ module "private_elasticache_subnet" {
 module "private_elasticache_sg" {
   source              = "../../modules/security_group"
   vpc_id              = module.vpc.vpc_id
-  security_group_name = "private-aurora-sg"
+  security_group_name = "private-elasticache-sg"
   description         = "Security group for the private subnet of ElastiCache"
   sg_rules = {
     ingress_rules = [

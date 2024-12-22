@@ -42,7 +42,8 @@ module "sqs_notify_lambda_policy" {
 }
 
 ## SQSからLambdaをトリガーする
-module "sqs_lambda_role" {
+module "sqs_notify_lambda_role" {
+  role_name = "sqs-notify-lambda-role"
   source = "../../modules/iam_role"
   assume_role_policy = {
     statement = [

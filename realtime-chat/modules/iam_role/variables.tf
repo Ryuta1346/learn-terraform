@@ -1,3 +1,9 @@
+variable "role_name" {
+  description = "The name of the role"
+  type        = string
+  sensitive   = false
+}
+
 variable "project_name" {
   description = "The name of the project"
   type        = string

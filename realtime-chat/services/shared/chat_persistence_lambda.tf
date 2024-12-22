@@ -67,6 +67,7 @@ module "sqs_chat_lambda_policy" {
 }
 
 module "sqs_chat_lambda_role" {
+  role_name = "sqs-chat-lambda-role"
   source = "../../modules/iam_role"
   assume_role_policy = {
     statement = [
