@@ -3,10 +3,18 @@ module "private_aurora_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [
     {
-      id                      = "${var.project_name}-${var.environment}-aurora"
+      id                      = "${var.project_name}-${var.environment}-aurora1"
       vpc_id                  = module.vpc.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.net_nums.private_3)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.subnets.aurora1)
+      map_public_ip_on_launch = false
+      is_private              = true
+    },
+    {
+      id                      = "${var.project_name}-${var.environment}-aurora2"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[1]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.subnets.aurora2)
       map_public_ip_on_launch = false
       is_private              = true
     }

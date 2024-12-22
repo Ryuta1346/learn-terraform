@@ -6,7 +6,7 @@ module "private_elasticache_subnet" {
       id                      = "${var.project_name}-${var.environment}-elasticache"
       vpc_id                  = module.vpc.vpc_id
       availability_zone       = var.availability_zones[0]
-      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.net_nums.private_4)
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.subnets.elasticache1)
       map_public_ip_on_launch = false
       is_private              = true
     }
