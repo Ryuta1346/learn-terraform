@@ -75,12 +75,13 @@ module "sqs_notify_lambda" {
   iam_role_arn = module.sqs_lambda_role.role_arn
 }
 
+output "sqs_lambda_role_policy_arns" {
+  value = module.sqs_lambda_role.role_arn
+}
+
 resource "aws_lambda_event_source_mapping" "sqs_notify_trigger" {
   event_source_arn = module.notification_queue.queue_arn
   function_name    = module.sqs_notify_lambda.function_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
 
-output "sqs_lambda_role_policy_arns" {
-  value = module.sqs_lambda_role.role_arn
-}
