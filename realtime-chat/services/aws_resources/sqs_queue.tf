@@ -24,9 +24,9 @@ module "notification_queue" {
 
 module "sqs_notify_lambda_policy" {
   policy_name = "sqs-notify-lambda-policy"
-  source = "../../modules/iam_policy"
-  sid    = "AllowSQSAccessForLambda"
-  effect = "Allow"
+  source      = "../../modules/iam_policy"
+  sid         = "AllowSQSAccessForLambda"
+  effect      = "Allow"
   actions = [
     "sqs:ReceiveMessage",
     "sqs:DeleteMessage",
@@ -34,7 +34,7 @@ module "sqs_notify_lambda_policy" {
     "sqs:GetQueueUrl",
     "sqs:ChangeMessageVisibility"
   ]
-  resources    = [module.notification_queue.queue_arn]
+  resources = [module.notification_queue.queue_arn]
   # resources = ["*"] # 一時的に全リソースを許可
   project_name = var.project_name
   environment  = var.environment
@@ -44,7 +44,7 @@ module "sqs_notify_lambda_policy" {
 ## SQSからLambdaをトリガーする
 module "sqs_notify_lambda_role" {
   role_name = "sqs-notify-lambda-role"
-  source = "../../modules/iam_role"
+  source    = "../../modules/iam_role"
   assume_role_policy = {
     statement = [
       {
@@ -54,7 +54,7 @@ module "sqs_notify_lambda_role" {
       }
     ]
   }
-  policy_arns  = [
+  policy_arns = [
     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
     module.sqs_notify_lambda_policy.policy_arn
   ]

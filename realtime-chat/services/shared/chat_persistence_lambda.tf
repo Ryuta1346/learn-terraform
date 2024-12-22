@@ -51,9 +51,9 @@ module "chat_persistence_lambda_sg" {
 # SQSからLambdaをトリガーする
 module "sqs_chat_lambda_policy" {
   policy_name = "sqs-chat-lambda-policy"
-  source = "../../modules/iam_policy"
-  sid    = "AllowVPCEndpointAccess"
-  effect = "Allow"
+  source      = "../../modules/iam_policy"
+  sid         = "AllowVPCEndpointAccess"
+  effect      = "Allow"
   actions = [
     "sqs:ReceiveMessage",
     "sqs:DeleteMessage",
@@ -68,7 +68,7 @@ module "sqs_chat_lambda_policy" {
 
 module "sqs_chat_lambda_role" {
   role_name = "sqs-chat-lambda-role"
-  source = "../../modules/iam_role"
+  source    = "../../modules/iam_role"
   assume_role_policy = {
     statement = [
       {

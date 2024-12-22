@@ -22,30 +22,30 @@ module "private_aurora_sg" {
   description         = "Security group for the private subnet of Aurora"
   sg_rules = {
     ingress_rules = [
-      {
-        from_port                = 80
-        to_port                  = 80
-        protocol                 = "tcp"
-        source_security_group_id = var.company_vars.ecs_chat_sg_id
-      },
-      {
-        from_port                = 443
-        to_port                  = 443
-        protocol                 = "tcp"
-        source_security_group_id = var.company_vars.ecs_chat_sg_id
-      },
-      {
-        from_port                = 80
-        to_port                  = 80
-        protocol                 = "tcp"
-        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
-      },
-      {
-        from_port                = 443
-        to_port                  = 443
-        protocol                 = "tcp"
-        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
-      },
+      # {
+      #   from_port                = 80
+      #   to_port                  = 80
+      #   protocol                 = "tcp"
+      #   source_security_group_id = var.company_vars.ecs_chat_sg_id
+      # },
+      # {
+      #   from_port                = 443
+      #   to_port                  = 443
+      #   protocol                 = "tcp"
+      #   source_security_group_id = var.company_vars.ecs_chat_sg_id
+      # },
+      # {
+      #   from_port                = 80
+      #   to_port                  = 80
+      #   protocol                 = "tcp"
+      #   source_security_group_id = var.visitor_vars.ecs_chat_sg_id
+      # },
+      # {
+      #   from_port                = 443
+      #   to_port                  = 443
+      #   protocol                 = "tcp"
+      #   source_security_group_id = var.visitor_vars.ecs_chat_sg_id
+      # },
       {
         from_port                = 80
         to_port                  = 80
@@ -59,18 +59,20 @@ module "private_aurora_sg" {
         source_security_group_id = module.chat_persistence_lambda_sg.sg_id
       },
     ],
-    egress_rules = [{
-      from_port                = 0
-      to_port                  = 0
-      protocol                 = "-1"
-      source_security_group_id = var.company_vars.ecs_chat_sg_id
-      },
+    egress_rules = [
+      # {
+      # from_port                = 0
+      # to_port                  = 0
+      # protocol                 = "-1"
+      # source_security_group_id = var.company_vars.ecs_chat_sg_id
+      # },
+      # {
+      #   from_port                = 0
+      #   to_port                  = 0
+      #   protocol                 = "-1"
+      #   source_security_group_id = var.visitor_vars.ecs_chat_sg_id
+      #   },
       {
-        from_port                = 0
-        to_port                  = 0
-        protocol                 = "-1"
-        source_security_group_id = var.visitor_vars.ecs_chat_sg_id
-        }, {
         from_port                = 0
         to_port                  = 0
         protocol                 = "-1"

@@ -38,7 +38,7 @@ module "company_chat" {
 }
 
 module "shared" {
-  depends_on         = [module.visitor_chat]
+  depends_on         = [module.visitor_chat, module.company_chat]
   source             = "../../services/shared"
   region             = var.region
   vpc_cidr_block     = var.shared_vpc_cidr_block

@@ -269,11 +269,11 @@ module "sqs_chat_vpc_endpoint" {
 
 module "visitor_chat_queue_policy" {
   policy_name = "visitor-chat-queue-policy"
-  source    = "../../modules/iam_policy"
-  sid       = "AllowVPCEndpointAccess"
-  effect    = "Allow"
-  actions   = ["sqs:SendMessage"]
-  resources = [var.chat_queue.arn]
+  source      = "../../modules/iam_policy"
+  sid         = "AllowVPCEndpointAccess"
+  effect      = "Allow"
+  actions     = ["sqs:SendMessage"]
+  resources   = [var.chat_queue.arn]
   condition_vars = {
     test     = "StringEquals"
     variable = "aws:SourceVpc"
