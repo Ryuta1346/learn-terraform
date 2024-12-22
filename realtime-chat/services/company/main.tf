@@ -268,6 +268,7 @@ module "sqs_chat_vpc_endpoint" {
 }
 
 module "visitor_chat_queue_policy" {
+  policy_name = "visitor-chat-queue-policy"
   source    = "../../modules/iam_policy"
   sid       = "AllowVPCEndpointAccess"
   effect    = "Allow"

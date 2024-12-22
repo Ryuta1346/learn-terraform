@@ -1,3 +1,8 @@
+variable "policy_name" {
+  description = "The name of the policy"
+  type        = string
+  sensitive   = false
+}
 variable "sid" {
   description = "The statement id"
   type        = string
@@ -31,19 +36,6 @@ variable "condition_vars" {
   })
   default = null
 }
-
-# variable "principals_vars" {
-#   description = "The variables for the principals"
-#   type = object({
-#     type        = string
-#     identifiers = list(string)
-#   })
-#   sensitive = false
-#   default = {
-#     type        = "AWS"
-#     identifiers = ["*"]
-#   }
-# }
 
 variable "project_name" {
   description = "The name of the project"

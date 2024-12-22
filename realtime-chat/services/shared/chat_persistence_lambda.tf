@@ -50,6 +50,7 @@ module "chat_persistence_lambda_sg" {
 
 # SQSからLambdaをトリガーする
 module "sqs_chat_lambda_policy" {
+  policy_name = "sqs-chat-lambda-policy"
   source = "../../modules/iam_policy"
   sid    = "AllowVPCEndpointAccess"
   effect = "Allow"

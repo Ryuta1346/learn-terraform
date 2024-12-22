@@ -271,6 +271,7 @@ module "sqs_vpc_endpoint" {
 }
 
 module "visitor_queue_policy" {
+  policy_name = "visitor-queue-policy"
   source = "../../modules/iam_policy"
   sid    = "AllowVPCEndpointAccess"
   effect = "Allow"
@@ -299,6 +300,7 @@ resource "aws_sqs_queue_policy" "visitor_chat_queue_policy" {
 
 ## 外部通知
 module "visitor_notify_queue_policy" {
+  policy_name = "visitor-notify-queue-policy"
   source = "../../modules/iam_policy"
   sid    = "AllowVPCEndpointAccess"
   effect = "Allow"

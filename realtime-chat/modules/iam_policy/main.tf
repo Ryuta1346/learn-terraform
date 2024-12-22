@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "policy_document" {
 }
 
 resource "aws_iam_policy" "policy" {
-  name        = "${var.project_name}-${var.environment}-policy"
+  name        = var.policy_name
   description = var.description
   policy      = data.aws_iam_policy_document.policy_document.json
 }
