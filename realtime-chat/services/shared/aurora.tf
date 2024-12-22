@@ -108,8 +108,7 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
   db_subnet_group_name            = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
-  skip_final_snapshot             = false
-  final_snapshot_identifier       = "${var.project_name}-${var.environment}-final-snapshot"
+  skip_final_snapshot             = true
   # backup_retention_period         = 0
   # storage_encrypted = true
   # storage_encryption_key = module.kms.key_arn
