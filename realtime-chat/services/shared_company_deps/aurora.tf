@@ -7,3 +7,12 @@ resource "aws_security_group_rule" "company_ecs_aurora" {
   security_group_id        = var.company_ecs_chat_sg_id
   source_security_group_id = var.shared_chat_private_aurora_sg_id
 }
+
+resource "aws_security_group_rule" "company_ecs_aurora_ingress" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = var.shared_chat_private_aurora_sg_id
+  source_security_group_id = var.company_ecs_chat_sg_id
+}
