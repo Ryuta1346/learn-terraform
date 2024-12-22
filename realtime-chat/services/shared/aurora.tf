@@ -125,7 +125,7 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
   engine_version                  = "8.0.mysql_aurora.3.08.0"
   database_name                   = "realtime_chats_${var.environment}"
   master_username                 = "admin"
-  master_password                 = data.aws_ssm_parameter.master_password // 本番運用の際にはmanage_master_user_passwordをtrueとし、Secrets Managerで管理する
+  master_password                 = data.aws_ssm_parameter.master_password.value // 本番運用の際にはmanage_master_user_passwordをtrueとし、Secrets Managerで管理する
   db_subnet_group_name            = aws_db_subnet_group.aurora_subnet_group.name
   vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
