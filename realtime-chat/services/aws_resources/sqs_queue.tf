@@ -33,7 +33,8 @@ module "sqs_notify_lambda_policy" {
     "sqs:GetQueueUrl",
     "sqs:ChangeMessageVisibility"
   ]
-  resources    = [module.notification_queue.queue_arn]
+  # resources    = [module.notification_queue.queue_arn]
+  resources = ["*"] # 一時的に全リソースを許可
   project_name = var.project_name
   environment  = var.environment
   description  = "Policy for Lambda to access SQS"
