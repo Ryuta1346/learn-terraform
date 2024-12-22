@@ -70,7 +70,7 @@ module "shared" {
 
 module "shared_company_deps" {
   depends_on                            = [module.shared]
-  source                                = "../../services/shared-company-deps"
+  source                                = "../../services/shared_company_deps"
   project_name                          = var.project_name
   environment                           = var.environment
   shared_chat_private_aurora_sg_id      = module.shared.private_aurora_sg_id
@@ -84,7 +84,7 @@ module "shared_company_deps" {
 
 module "shared_visitor_deps" {
   depends_on                            = [module.shared]
-  source                                = "../../services/shared-visitor-deps"
+  source                                = "../../services/shared_visitor_deps"
   project_name                          = var.project_name
   environment                           = var.environment
   shared_chat_private_aurora_sg_id      = module.shared.private_aurora_sg_id
