@@ -13,7 +13,7 @@ output "vpc_id" {
   description = "The ID of the Shared Chat VPC"
 }
 
-output "shared_vpc_cidr_block" {
+output "vpc_cidr_block" {
   value       = module.vpc.vpc_cidr_block
   description = "The CIDR block of the Shared Chat VPC"
 }
