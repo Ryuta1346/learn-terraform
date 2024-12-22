@@ -126,7 +126,7 @@ resource "aws_rds_cluster_instance" "instance1" {
   engine                       = aws_rds_cluster.realtime_chats_cluster.engine
   engine_version               = aws_rds_cluster.realtime_chats_cluster.engine_version
   availability_zone            = var.availability_zones[0]
-  ca_cert_identifier           = "rds-ca-2019"
+  # ca_cert_identifier           = "rds-ca-2019"
   auto_minor_version_upgrade   = true
   performance_insights_enabled = false
   # monitoring_interval          = 60
