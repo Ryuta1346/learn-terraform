@@ -101,7 +101,7 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
   cluster_identifier              = "${var.project_name}-${var.environment}-cluster"
   engine                          = "aurora-mysql"
   engine_version                  = "8.0.mysql_aurora.3.07.1"
-  database_name                   = "realtime-chats"
+  database_name                   = "realtime_chats_${var.environment}"
   master_username                 = "admin"
   master_password                 = "password"
   db_subnet_group_name            = aws_db_subnet_group.aurora_subnet_group.name
