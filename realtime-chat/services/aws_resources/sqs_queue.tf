@@ -75,11 +75,11 @@ module "sqs_notify_lambda" {
   }
   environment  = var.environment
   project_name = var.project_name
-  iam_role_arn = module.sqs_lambda_role.role_arn
+  iam_role_arn = module.sqs_notify_lambda_role.role_arn
 }
 
 output "sqs_lambda_role_policy_arns" {
-  value = module.sqs_lambda_role.role_arn
+  value = module.sqs_notify_lambda_role.role_arn
 }
 
 resource "aws_lambda_event_source_mapping" "sqs_notify_trigger" {
