@@ -109,6 +109,7 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
   vpc_security_group_ids          = [module.private_aurora_sg.sg_id]
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.realtime_chats.name
   skip_final_snapshot             = false
+  final_snapshot_identifier       = "${var.project_name}-${var.environment}-final-snapshot"
   # backup_retention_period         = 0
   # storage_encrypted = true
   # storage_encryption_key = module.kms.key_arn
@@ -120,12 +121,12 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
 }
 
 resource "aws_rds_cluster_instance" "instance1" {
-  identifier                   = "${var.project_name}-${var.environment}-instance1"
-  cluster_identifier           = aws_rds_cluster.realtime_chats_cluster.id
-  instance_class               = "db.t3.medium"
-  engine                       = aws_rds_cluster.realtime_chats_cluster.engine
-  engine_version               = aws_rds_cluster.realtime_chats_cluster.engine_version
-  availability_zone            = var.availability_zones[0]
+  identifier         = "${var.project_name}-${var.environment}-instance1"
+  cluster_identifier = aws_rds_cluster.realtime_chats_cluster.id
+  instance_class     = "db.t3.medium"
+  engine             = aws_rds_cluster.realtime_chats_cluster.engine
+  engine_version     = aws_rds_cluster.realtime_chats_cluster.engine_version
+  availability_zone  = var.availability_zones[0]
   # ca_cert_identifier           = "rds-ca-2019"
   auto_minor_version_upgrade   = true
   performance_insights_enabled = false
