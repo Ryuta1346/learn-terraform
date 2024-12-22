@@ -64,7 +64,7 @@ module "private_aurora_route_table" {
 resource "aws_db_subnet_group" "aurora_subnet_group" {
   name        = "${var.project_name}-${var.environment}-aurora-subnet-group"
   description = "Subnet group for Aurora MySQL cluster for ${var.project_name}-${var.environment}"
-  subnet_ids  = [module.private_aurora_sg.sg_id]
+  subnet_ids  = module.private_aurora_subnet.subnet_ids
 
   tags = {
     Environment = "dev"
