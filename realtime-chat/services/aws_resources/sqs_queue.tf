@@ -80,3 +80,7 @@ resource "aws_lambda_event_source_mapping" "sqs_notify_trigger" {
   function_name    = module.sqs_notify_lambda.function_arn
   batch_size       = 10 # 一度にLambdaが処理するメッセージ数
 }
+
+output "sqs_lambda_role_policy_arns" {
+  value = module.sqs_lambda_role.policy_arns
+}
