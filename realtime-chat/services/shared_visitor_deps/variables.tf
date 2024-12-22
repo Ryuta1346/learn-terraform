@@ -13,8 +13,8 @@ variable "shared_chat_vpc_id" {
   type        = string
 }
 
-variable "visitor_vpc_cider_block" {
-  description = "The CIDR block of the Visitor's Chat VPC"
+variable "shared_vpc_cidr_block" {
+  description = "The CIDR block of the Shared Chat VPC"
   type        = string
 }
 

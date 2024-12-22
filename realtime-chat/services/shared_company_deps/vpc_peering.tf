@@ -21,6 +21,6 @@ resource "aws_vpc_peering_connection" "with_company_ecs" {
 
 resource "aws_route" "with_company_ecs" {
   route_table_id            = var.company_ecs_route_table_id                 # 既存のルートテーブルID
-  destination_cidr_block    = var.company_vpc_cider_block                    # 新しく追加するCIDRブロック
+  destination_cidr_block    = var.shared_vpc_cidr_block                      # 新しく追加するCIDRブロック
   vpc_peering_connection_id = aws_vpc_peering_connection.with_company_ecs.id # Peering接続ID
 }

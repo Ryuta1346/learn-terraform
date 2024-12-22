@@ -1,6 +1,6 @@
 ## Company - Shared間のセキュリティグループルール: ECS -> Aurora用
 resource "aws_security_group_rule" "company_ecs_aurora_egress" {
-  depends_on = [ aws_vpc_peering_connection.with_company_ecs ]
+  depends_on               = [aws_vpc_peering_connection.with_company_ecs]
   type                     = "egress"
   from_port                = 3306
   to_port                  = 3306
@@ -10,7 +10,7 @@ resource "aws_security_group_rule" "company_ecs_aurora_egress" {
 }
 
 resource "aws_security_group_rule" "company_ecs_aurora_ingress" {
-  depends_on = [ aws_vpc_peering_connection.with_company_ecs ]
+  depends_on               = [aws_vpc_peering_connection.with_company_ecs]
   type                     = "ingress"
   from_port                = 3306
   to_port                  = 3306

@@ -1,5 +1,5 @@
 resource "aws_security_group_rule" "company_ecs_elasticache_egress1" {
-    depends_on = [ aws_vpc_peering_connection.with_company_ecs ]
+  depends_on               = [aws_vpc_peering_connection.with_company_ecs]
   type                     = "egress"
   from_port                = 6379
   to_port                  = 6379
@@ -9,7 +9,7 @@ resource "aws_security_group_rule" "company_ecs_elasticache_egress1" {
 }
 
 resource "aws_security_group_rule" "company_ecs_elasticache_egress2" {
-  depends_on = [ aws_vpc_peering_connection.with_company_ecs ]
+  depends_on               = [aws_vpc_peering_connection.with_company_ecs]
   type                     = "egress"
   from_port                = 6380
   to_port                  = 6380
@@ -20,7 +20,7 @@ resource "aws_security_group_rule" "company_ecs_elasticache_egress2" {
 
 
 resource "aws_security_group_rule" "company_ecs_elasticache_ingress1" {
-  depends_on = [ aws_vpc_peering_connection.with_company_ecs ]
+  depends_on               = [aws_vpc_peering_connection.with_company_ecs]
   type                     = "ingress"
   from_port                = 6379
   to_port                  = 6379
@@ -31,7 +31,7 @@ resource "aws_security_group_rule" "company_ecs_elasticache_ingress1" {
 
 
 resource "aws_security_group_rule" "company_ecs_elasticache_ingress2" {
-  depends_on = [ aws_vpc_peering_connection.with_company_ecs ]
+  depends_on               = [aws_vpc_peering_connection.with_company_ecs]
   type                     = "ingress"
   from_port                = 6380
   to_port                  = 6380
