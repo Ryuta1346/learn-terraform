@@ -15,11 +15,13 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
   name        = var.cluster_parameter_group.name
   family      = var.cluster_parameter_group.family # 対応するエンジンとバージョン
   description = var.cluster_parameter_group.description
-  for_each    = { for idx, parameter in var.cluster_parameter_group.parameters : idx => parameter }
-  parameter {
-    name         = each.value.parameter.name
-    value        = each.value.parameter.value
-    apply_method = each.value.parameter.apply_method
+  dynamic "parameter" {
+    for_each = var.cluster_parameter_group.parameters
+    content {
+      name         = parameter.value.name
+      value        = parameter.value.value
+      apply_method = parameter.value.apply_method
+    }
   }
 }
 
