@@ -76,5 +76,6 @@ variable "cluster" {
     daily_snapshot_time  = optional(string)
     major_engine_version = string
     user_group_id        = optional(string)
+    engine               = string
   })
 }
