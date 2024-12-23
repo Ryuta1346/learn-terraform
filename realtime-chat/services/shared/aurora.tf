@@ -127,7 +127,7 @@ module "realtime_chat_rds_cluster" {
   cluster_instance = {
     count                        = 2
     instance_class               = "db.t3.medium"
-    availability_zone            = var.availability_zones
+    availability_zones           = var.availability_zones
     auto_minor_version_upgrade   = true
     performance_insights_enabled = false
   }
