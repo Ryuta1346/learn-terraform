@@ -67,3 +67,14 @@ variable "visitor_vars" {
   })
   sensitive = false
 }
+
+variable "cluster" {
+  description = "The cluster configuration"
+  type = object({
+    cache_storage_max_gb = number
+    ecpu_per_second_max  = number
+    daily_snapshot_time  = optional(string)
+    major_engine_version = string
+    user_group_id        = optional(string)
+  })
+}

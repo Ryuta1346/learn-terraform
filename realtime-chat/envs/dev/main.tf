@@ -66,6 +66,11 @@ module "shared" {
     ecs_route_table_id = module.company_chat.ecs_route_table_id
     ecs_chat_sg_id     = module.company_chat.ecs_chat_sg_id
   }
+  cluster = {
+    cache_storage_max_gb = 10
+    ecpu_per_second_max  = 1000
+    major_engine_version = "8"
+  }
 }
 
 module "shared_company_deps" {
