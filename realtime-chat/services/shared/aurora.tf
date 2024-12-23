@@ -98,6 +98,7 @@ module "realtime_chat_rds_cluster" {
   }
 
   kms_parameters = {
+    name                    = "${var.project_name}-${var.environment}-aurora"
     description             = "KMS key for Aurora MySQL cluster for ${var.project_name}-${var.environment}"
     enable_key_rotation     = false
     rotation_period_in_days = 180
@@ -111,11 +112,11 @@ module "realtime_chat_rds_cluster" {
     name                         = "${var.project_name}-${var.environment}-cluster"
     cluster_identifier           = "${var.project_name}-${var.environment}-cluster"
     deletion_protection          = false
+    security_group_ids           = [module.private_aurora_sg.sg_id]
     engine                       = "aurora-mysql"
     engine_version               = "8.0.mysql_aurora.3.08.0"
     database_name                = "realtime_chats_${var.environment}"
     master_username              = "admin"
-    vpc_security_group_ids       = [module.private_aurora_sg.sg_id]
     performance_insights_enabled = true
     storage_type                 = "aurora-iopt1"
     skip_final_snapshot          = true
@@ -126,7 +127,7 @@ module "realtime_chat_rds_cluster" {
   cluster_instance = {
     count                        = 2
     instance_class               = "db.t3.medium"
-    availability_zone            = element(var.availability_zones, count.index)
+    availability_zone            = var.availability_zones
     auto_minor_version_upgrade   = true
     performance_insights_enabled = false
   }
