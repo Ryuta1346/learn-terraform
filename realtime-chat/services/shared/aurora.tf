@@ -144,9 +144,9 @@ resource "aws_rds_cluster" "realtime_chats_cluster" {
   }
 }
 
-resource "aws_rds_cluster_instance" "instance1" {
+resource "aws_rds_cluster_instance" "instance" {
   count                        = local.instance_count
-  identifier                   = "${var.project_name}-${var.environment}-instance1"
+  identifier                   = "${var.project_name}-${var.environment}-instance${count.index}"
   cluster_identifier           = aws_rds_cluster.realtime_chats_cluster.id
   instance_class               = "db.t3.medium"
   engine                       = aws_rds_cluster.realtime_chats_cluster.engine
