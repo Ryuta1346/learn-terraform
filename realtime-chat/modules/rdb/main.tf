@@ -28,7 +28,7 @@ resource "aws_rds_cluster_parameter_group" "cluster_parameter_group" {
 resource "aws_kms_key" "rds_cluster" {
   description             = var.kms_parameters.description
   enable_key_rotation     = var.kms_parameters.enable_key_rotation // 本番運用の際には原則trueで運用する
-  rotation_period_in_days = var.kms.parameters.rotation_period_in_days
+  rotation_period_in_days = var.kms_parameters.rotation_period_in_days
   is_enabled              = var.kms_parameters.is_enabled
   deletion_window_in_days = var.kms_parameters.deletion_window_in_days
   multi_region            = var.kms_parameters.multi_region // default: false
