@@ -5,6 +5,7 @@ locals {
     aurora1      = 2
     aurora2      = 3
     elasticache1 = 4
+    elasticache2 = 5
   }
 }
 

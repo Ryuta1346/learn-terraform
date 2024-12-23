@@ -3,10 +3,18 @@ module "private_elasticache_subnet" {
   source = "../../modules/subnet"
   subnet_vars = [
     {
-      id                      = "${var.project_name}-${var.environment}-elasticache"
+      id                      = "${var.project_name}-${var.environment}-elasticache1"
       vpc_id                  = module.vpc.vpc_id
       availability_zone       = var.availability_zones[0]
       cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.subnets.elasticache1)
+      map_public_ip_on_launch = false
+      is_private              = true
+    },
+    {
+      id                      = "${var.project_name}-${var.environment}-elasticache2"
+      vpc_id                  = module.vpc.vpc_id
+      availability_zone       = var.availability_zones[1]
+      cidr_block              = cidrsubnet(var.vpc_cidr_block, 4, local.subnets.elasticache2)
       map_public_ip_on_launch = false
       is_private              = true
     }
@@ -77,7 +85,7 @@ resource "aws_elasticache_serverless_cache" "cluster" {
   daily_snapshot_time  = var.cluster.daily_snapshot_time
   description          = "${var.cluster.engine} cluster for ${var.environment}"
   major_engine_version = var.cluster.major_engine_version
-  security_group_ids   = module.private_elasticache_sg.sg_id
+  security_group_ids   = [module.private_elasticache_sg.sg_id]
   subnet_ids           = module.private_elasticache_subnet.subnet_ids
   ## 2024/12/23時点でValkeyのユーザーグループ/ユーザー作成は未サポートのため、`data`を使ってSSM等から作成済みのユーザーグループ/ユーザーを取得
   # user_group_id        = data.aws_ssm_parameter.elasticache_user_group_id.value
