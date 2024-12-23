@@ -77,7 +77,7 @@ variable "cluster_instance" {
   type = object({
     count                        = number
     instance_class               = string
-    availability_zone            = list(string)
+    availability_zones           = list(string)
     auto_minor_version_upgrade   = bool
     performance_insights_enabled = bool
   })
