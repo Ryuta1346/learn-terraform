@@ -99,8 +99,8 @@ resource "aws_rds_cluster_parameter_group" "realtime_chats" {
 
 // [Resource: aws_kms_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key)
 resource "aws_kms_key" "aurora_realtime_chats" {
-  description         = "KMS key for Aurora MySQL cluster for ${var.project_name}-${var.environment}"
-  enable_key_rotation = false // 本番運用の際には原則trueで運用する
+  description             = "KMS key for Aurora MySQL cluster for ${var.project_name}-${var.environment}"
+  enable_key_rotation     = false // 本番運用の際には原則trueで運用する
   rotation_period_in_days = 180
   is_enabled              = true
   deletion_window_in_days = 30

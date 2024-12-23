@@ -70,6 +70,7 @@ module "shared" {
     cache_storage_max_gb = 10
     ecpu_per_second_max  = 1000
     major_engine_version = "8"
+    engine               = "valkey"
   }
 }
 
