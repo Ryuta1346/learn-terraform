@@ -70,28 +70,21 @@ module "private_elasticache_route_table" {
   ]
 }
 
-resource "aws_elasticache_serverless_cache" "cluster" {
-  name   = "${var.project_name}-${var.environment}-${var.cluster.engine}-cluster"
-  engine = var.cluster.engine
-  cache_usage_limits {
-    data_storage {
-      maximum = var.cluster.cache_storage_max_gb
-      unit    = "GB"
-    }
-    ecpu_per_second {
-      maximum = var.cluster.ecpu_per_second_max
-    }
-  }
-  daily_snapshot_time  = var.cluster.daily_snapshot_time
-  description          = "${var.cluster.engine} cluster for ${var.environment}"
-  major_engine_version = var.cluster.major_engine_version
-  security_group_ids   = [module.private_elasticache_sg.sg_id]
-  subnet_ids           = module.private_elasticache_subnet.subnet_ids
-  ## 2024/12/23時点でValkeyのユーザーグループ/ユーザー作成は未サポートのため、`data`を使ってSSM等から作成済みのユーザーグループ/ユーザーを取得
-  # user_group_id        = data.aws_ssm_parameter.elasticache_user_group_id.value
+data "aws_ssm_parameter" "elasticache_user_group_id" {
+  count = var.cluster.elasticache_user_group_path != "" ? 1 : 0
+  name  = var.cluster.elasticache_user_group_path
+}
 
-  tags = {
-    environment  = var.environment
-    project_name = var.project_name
-  }
+module "shared_elasticache" {
+  source                    = "../../modules/elasticache"
+  project_name              = var.project_name
+  environment               = var.environment
+  elasticache_sg_id         = module.private_elasticache_sg.sg_id
+  elasticache_subnet_ids    = module.private_elasticache_subnet.subnet_ids
+  engine                    = var.cluster.engine
+  cache_storage_max_gb      = var.cluster.cache_storage_max_gb
+  ecpu_per_second_max       = var.cluster.ecpu_per_second_max
+  daily_snapshot_time       = var.cluster.daily_snapshot_time
+  major_engine_version      = var.cluster.major_engine_version
+  elasticache_user_group_id = data.aws_ssm_parameter.elasticache_user_group_id.value
 }

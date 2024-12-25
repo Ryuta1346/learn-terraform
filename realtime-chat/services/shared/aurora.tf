@@ -83,7 +83,7 @@ module "realtime_chat_rds_cluster" {
     name        = "${var.project_name}-${var.environment}-cluster-parameter-group"
     family      = "aurora-mysql8.0"
     description = "Custom parameter group for Aurora MySQL 8"
-    parameters  = [
+    parameters = [
       {
         name         = "character_set_server"
         value        = "utf8mb4"
