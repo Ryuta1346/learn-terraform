@@ -86,5 +86,5 @@ module "shared_elasticache" {
   ecpu_per_second_max       = var.cluster.ecpu_per_second_max
   daily_snapshot_time       = var.cluster.daily_snapshot_time
   major_engine_version      = var.cluster.major_engine_version
-  elasticache_user_group_id = data.aws_ssm_parameter.elasticache_user_group_id.value
+  elasticache_user_group_id = var.cluster.elasticache_user_group_path != "" ? data.aws_ssm_parameter.elasticache_user_group_id[0].value : null
 }
