@@ -70,10 +70,10 @@ module "private_elasticache_route_table" {
   ]
 }
 
-data "aws_ssm_parameter" "elasticache_user_group_id" {
-  count = var.cluster.elasticache_user_group_path != "" ? 1 : 0
-  name  = var.cluster.elasticache_user_group_path
-}
+# data "aws_ssm_parameter" "elasticache_user_group_id" {
+#   count = var.cluster.elasticache_user_group_path != "" ? 1 : 0
+#   name  = var.cluster.elasticache_user_group_path
+# }
 
 module "shared_elasticache" {
   source                    = "../../modules/elasticache"
@@ -86,5 +86,5 @@ module "shared_elasticache" {
   ecpu_per_second_max       = var.cluster.ecpu_per_second_max
   daily_snapshot_time       = var.cluster.daily_snapshot_time
   major_engine_version      = var.cluster.major_engine_version
-  elasticache_user_group_id = var.cluster.elasticache_user_group_path != "" ? data.aws_ssm_parameter.elasticache_user_group_id[0].value : null
+  elasticache_user_group_id = null
 }
