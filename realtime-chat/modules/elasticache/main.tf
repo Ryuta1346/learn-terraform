@@ -1,6 +1,6 @@
-data "aws_ssm_parameter" "elasticache_user_group_id" {
-  name = var.elasticache_user_group_id
-}
+# data "aws_ssm_parameter" "elasticache_user_group_id" {
+#   name = var.elasticache_user_group_id
+# }
 
 resource "aws_elasticache_serverless_cache" "cluster" {
   name   = "${var.project_name}-${var.environment}-${var.engine}-cluster"
@@ -20,7 +20,7 @@ resource "aws_elasticache_serverless_cache" "cluster" {
   security_group_ids   = [var.elasticache_sg_id]
   subnet_ids           = var.elasticache_subnet_ids
   ## 2024/12/23時点でValkeyのユーザーグループ/ユーザー作成は未サポートのため、`data`を使ってSSM等から作成済みのユーザーグループ/ユーザーを取得
-  user_group_id = data.aws_ssm_parameter.elasticache_user_group_id.value
+#   user_group_id = data.aws_ssm_parameter.elasticache_user_group_id.value
 
   tags = {
     environment  = var.environment
