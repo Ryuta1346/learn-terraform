@@ -10,12 +10,12 @@ Terraform を用いたインフラ管理を行うにあたり各種チュート�
 ### [docker-tutorial](https://github.com/Ryuta1346/learn-terraform/tree/main/docker-tutorial)
 Terraform の Docker 用チュートリアルより。([Get Started - Docker](https://developer.hashicorp.com/terraform/tutorials/docker-get-started))
 
-### [leran-terraform-aws-instance](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-aws-instance)
+### [learn-terraform-aws-instance](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-aws-instance)
 Terraform の AWS 用チュートリアルより。([Get Started - Docker](https://developer.hashicorp.com/terraform/tutorials/docker-get-started))
 `outputs.tf` `variables.tf` を用いながらEC2インスタンスの構築と起動まで。
 
-### [leran-terraform-iam-policy](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-iam-policy)
+### [learn-terraform-iam-policy](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-iam-policy)
 Terraform のIAMポリシー作成チュートリアル([Create IAM policies](https://developer.hashicorp.com/terraform/tutorials/aws/aws-iam-policy))
 
-### [leran-terraform-lambda-api-gateway](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-lambda-api-gateway)
+### [learn-terraform-lambda-api-gateway](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-lambda-api-gateway)
 AWS Lambda関数とAPIゲートウェイのチュートリアル([Deploy serverless applications with AWS Lambda and API Gateway](https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway))
