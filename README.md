@@ -19,3 +19,6 @@ Terraform のIAMポリシー作成チュートリアル([Create IAM policies](ht
 
 ### [learn-terraform-lambda-api-gateway](https://github.com/Ryuta1346/learn-terraform/tree/main/learn-terraform-lambda-api-gateway)
 AWS Lambda関数とAPIゲートウェイのチュートリアル([Deploy serverless applications with AWS Lambda and API Gateway](https://developer.hashicorp.com/terraform/tutorials/aws/lambda-api-gateway))
+
+### [realtime-chat](https://github.com/Ryuta1346/learn-terraform/tree/main/realtime-chat)
+企業-個人間でのチャットシステムを前提としたインフラ構築
